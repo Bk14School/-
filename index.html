@@ -155,6 +155,12 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
 .report-table .s-ล { color: var(--status-leave-fg);   background: var(--status-leave-bg);   font-weight: 700; border-radius: 4px; }
 .report-table .s-ส { color: var(--status-late-fg);    background: var(--status-late-bg);    font-weight: 700; border-radius: 4px; }
 
+/* Month filter buttons */
+.month-btn { padding: 6px 14px; border-radius: 20px; border: 1.5px solid #cbd5e1; background: #fff; color: #374151; font-size: .82rem; font-weight: 600; cursor: pointer; transition: all .15s; font-family: inherit; }
+.month-btn:hover  { border-color: #0ea5e9; color: #0ea5e9; }
+.month-btn.active { background: #0ea5e9; border-color: #0ea5e9; color: #fff; box-shadow: 0 2px 8px rgba(14,165,233,.3); }
+.month-btn.all    { background: #f1f5f9; border-color: #94a3b8; }
+.month-btn.all.active { background: #1e3a5f; border-color: #1e3a5f; color: #fff; }
 /* Report enhancements */
 .stat-card { background: white; border-radius: 12px; padding: 16px; box-shadow: var(--shadow); text-align: center; }
 .stat-num  { font-size: 2rem; font-weight: 800; line-height: 1; }
@@ -338,40 +344,28 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
           <button class="nav-btn" onclick="printReport()" title="พิมพ์ PDF">🖨️ พิมพ์</button>
         </div>
       </div>
-      <div class="report-controls">
+      <div class="report-controls" style="align-items:flex-end;">
         <div>
           <label>ชั้นเรียน</label>
-          <select id="rptClassroom" onchange="loadReport()"></select>
+          <select id="rptClassroom" onchange="onClassroomChange()"></select>
         </div>
         <div>
           <label>ช่วงเวลา</label>
           <select id="rptPeriod" onchange="onPeriodChange()">
             <option value="month">รายเดือน</option>
-            <option value="week">รายสัปดาห์</option>
             <option value="term">รายเทอม (ทั้งหมด)</option>
           </select>
-        </div>
-        <div id="monthSelectWrap">
-          <label>เดือน</label>
-          <select id="rptMonth" onchange="loadReport()">
-            <option value="">-- ทั้งหมด --</option>
-            <option value="01">มกราคม</option><option value="02">กุมภาพันธ์</option>
-            <option value="03">มีนาคม</option><option value="04">เมษายน</option>
-            <option value="05">พฤษภาคม</option><option value="06">มิถุนายน</option>
-            <option value="07">กรกฎาคม</option><option value="08">สิงหาคม</option>
-            <option value="09">กันยายน</option><option value="10">ตุลาคม</option>
-            <option value="11">พฤศจิกายน</option><option value="12">ธันวาคม</option>
-          </select>
-        </div>
-        <div id="weekSelectWrap" style="display:none;">
-          <label>สัปดาห์ที่ (เลขสัปดาห์)</label>
-          <input type="number" id="rptWeek" min="1" max="52" placeholder="เช่น 10" class="form-control" style="width:100px;" onchange="loadReport()">
         </div>
         <div>
           <label>เกณฑ์แจ้งเตือนขาด (วัน)</label>
           <input type="number" id="rptThreshold" value="3" min="1" max="30" class="form-control" style="width:80px;" onchange="renderReport(reportData)">
         </div>
-        <button class="nav-btn" onclick="loadReport()" style="height:38px;margin-top:24px;">🔄 โหลด</button>
+        <button class="nav-btn" onclick="loadAllThenRender()" style="height:38px;">🔄 โหลด</button>
+      </div>
+      <!-- ปุ่มเดือน (สร้างอัตโนมัติหลังโหลดข้อมูล) -->
+      <div id="monthBtnRow" style="display:none;margin-top:14px;">
+        <label style="font-size:.8rem;color:#6b7280;display:block;margin-bottom:6px;">เลือกเดือน</label>
+        <div id="monthBtnGroup" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
       </div>
     </div>
 
@@ -825,8 +819,11 @@ async function confirmAddStudent() {
 // Report
 // =============================================
 // =============================================
-// Report
+// Report — ระบบปุ่มเดือน
 // =============================================
+let reportAllData  = null;  // ข้อมูลทั้งเทอม (โหลดครั้งเดียว)
+let selectedMonth  = '';    // "mm" ที่เลือกอยู่ หรือ '' = ทั้งหมด
+
 function setupReportClassroomSelect() {
   const sel = document.getElementById('rptClassroom');
   sel.innerHTML = '';
@@ -839,45 +836,101 @@ function setupReportClassroomSelect() {
   }
 }
 
-function onPeriodChange() {
-  const p = document.getElementById('rptPeriod').value;
-  document.getElementById('monthSelectWrap').style.display = p === 'week' ? 'none' : 'block';
-  document.getElementById('weekSelectWrap').style.display  = p === 'week' ? 'block' : 'none';
-  if (p === 'term') document.getElementById('rptMonth').value = '';
-  loadReport();
+function onClassroomChange() {
+  reportAllData = null;
+  selectedMonth = '';
+  loadAllThenRender();
 }
 
-async function loadReport() {
-  const cls    = document.getElementById('rptClassroom').value;
-  const period = document.getElementById('rptPeriod').value;
-  let   month  = document.getElementById('rptMonth').value;
+function onPeriodChange() {
+  renderFiltered();
+}
+
+// โหลดข้อมูลทั้งเทอมครั้งเดียว แล้วสร้างปุ่มเดือน
+async function loadAllThenRender() {
+  const cls = document.getElementById('rptClassroom').value;
   if (!cls) return;
-
-  // รายสัปดาห์ — คำนวณเดือนที่อยู่ในสัปดาห์นั้น
-  let weekFilter = null;
-  if (period === 'week') {
-    const wn = parseInt(document.getElementById('rptWeek').value) || getWeekNumber(new Date());
-    weekFilter = wn;
-    month = '';
-  } else if (period === 'term') {
-    month = '';
-  }
-
   showProgress('กำลังโหลดรายงาน...');
   try {
-    const raw = await api('getReport', { year: currentYear, classroom: cls, month });
-    // กรองสัปดาห์ถ้าต้องการ
-    if (weekFilter !== null && raw.dates) {
-      const filtered = raw.dates.filter(d => getWeekNumber(thaiDateToJS(d)) === weekFilter);
-      raw.dates = filtered;
-    }
-    reportData = raw;
-    renderReport(reportData);
+    reportAllData = await api('getReport', { year: currentYear, classroom: cls, month: '' });
+    selectedMonth = '';
+    buildMonthButtons(reportAllData.dates);
+    renderFiltered();
   } catch(e) {
-    showToast('โหลดรายงานไม่สำเร็จ: ' + e.message,'error');
+    showToast('โหลดรายงานไม่สำเร็จ: ' + e.message, 'error');
   }
   hideProgress();
 }
+
+// สร้างปุ่มเดือนจาก dates จริงในข้อมูล
+function buildMonthButtons(dates) {
+  const THAI_MONTHS = ['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
+                       'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+  const monthRow  = document.getElementById('monthBtnRow');
+  const monthGrp  = document.getElementById('monthBtnGroup');
+  const period    = document.getElementById('rptPeriod').value;
+
+  if (period === 'term' || !dates || !dates.length) {
+    monthRow.style.display = 'none';
+    return;
+  }
+
+  // หาเดือนที่มีข้อมูลจริง (unique, เรียงลำดับ)
+  const seen = {};
+  dates.forEach(d => {
+    const p = d.split('/');
+    const mm = p[1]; const yyyy = p[2];
+    const key = mm + '/' + yyyy;
+    if (!seen[key]) seen[key] = { mm, yyyy, label: THAI_MONTHS[parseInt(mm)] + ' ' + yyyy };
+  });
+  const months = Object.values(seen);
+
+  // สร้างปุ่ม
+  monthGrp.innerHTML =
+    `<button class="month-btn all ${selectedMonth===''?'active':''}" onclick="selectMonth('')">ทั้งหมด (${dates.length} วัน)</button>` +
+    months.map(m => {
+      const cnt = dates.filter(d=>d.split('/')[1]===m.mm).length;
+      return `<button class="month-btn ${selectedMonth===m.mm?'active':''}" onclick="selectMonth('${m.mm}')">${m.label} <span style="opacity:.7;font-size:.75rem;">(${cnt})</span></button>`;
+    }).join('');
+
+  monthRow.style.display = 'block';
+}
+
+// กดปุ่มเดือน
+function selectMonth(mm) {
+  selectedMonth = mm;
+  // update active state
+  document.querySelectorAll('.month-btn').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+  renderFiltered();
+}
+
+// กรองข้อมูลตามเดือนที่เลือก แล้ว render
+function renderFiltered() {
+  if (!reportAllData) return;
+  const period = document.getElementById('rptPeriod').value;
+
+  let filteredDates = reportAllData.dates;
+  if (period === 'month' && selectedMonth) {
+    filteredDates = reportAllData.dates.filter(d => d.split('/')[1] === selectedMonth);
+  } else if (period === 'term') {
+    filteredDates = reportAllData.dates; // ทั้งหมดเสมอ
+  }
+
+  // สร้าง reportData ที่กรองแล้ว
+  reportData = {
+    students: reportAllData.students,
+    dates: filteredDates,
+    attendance: reportAllData.attendance
+  };
+
+  // rebuild month buttons (เผื่อ period เปลี่ยน)
+  buildMonthButtons(reportAllData.dates);
+  renderReport(reportData);
+}
+
+// loadReport เดิม (backward compat)
+async function loadReport() { loadAllThenRender(); }
 
 function getWeekNumber(d) {
   const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
