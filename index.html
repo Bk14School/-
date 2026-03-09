@@ -1391,13 +1391,14 @@ function printReport() {
   }).join('');
   const dayHeaderRow = dates.map(d=>`<th style="background:#0ea5e9;color:#fff;font-size:8px;padding:2px 1px;min-width:16px;width:16px;">${d.substring(0,2)}</th>`).join('');
 
+  // หาชื่อเดือนจาก dates จริง
+  const _TM = ['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+  const _mSet = {};
+  dates.forEach(d=>{const p=d.split('/');_mSet[p[1]+'/'+p[2]]=_TM[parseInt(p[1])]+' '+p[2];});
+  const _monthLabel = Object.values(_mSet).join(', ') || 'ทั้งหมด';
+
   const html = buildPrintPage({
     school, cls, currentYear, printDate, threshold,
-    // หาชื่อเดือนจาก dates จริง
-    const _TM = ['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
-    const _mSet = {};
-    dates.forEach(d=>{const p=d.split('/');_mSet[p[1]+'/'+p[2]]=_TM[parseInt(p[1])]+' '+p[2];});
-    const _monthLabel = Object.values(_mSet).join(', ') || 'ทั้งหมด';
     title: `สรุปการเข้าเรียน | ${_monthLabel}`,
     subTitle: `ปีการศึกษา ${currentYear} | ชั้น ${cls} | ${dates.length} วันเรียน`,
     orientation: 'landscape',
