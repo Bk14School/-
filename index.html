@@ -1590,7 +1590,7 @@ function renderCalendar() {
     const dateStr = pad(d)+'/'+pad(calMonth)+'/'+calYear;
     const isToday   = dateStr === todayStr;
     const isWeekend = ((startDow+d-1)%7 === 0 || (startDow+d-1)%7 === 6);
-    const isFuture  = new Date(calYear-543, calMonth-1, d) > now;
+    const isFuture  = false; // อนุญาตให้เช็คและแก้ไขได้ทุกวัน
     const dayAtt    = calDayData[dateStr] || null;
     const hasData   = dayAtt && Object.keys(dayAtt).length > 0;
 
