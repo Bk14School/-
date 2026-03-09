@@ -213,6 +213,7 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
       <div class="teacher-badge" id="teacherBadge">🎓 ครูสมศรี • ป.3</div>
       <button class="nav-btn" id="btnNav1" onclick="showPage('checkPage')" style="display:none;">✅ เช็คชื่อ</button>
       <button class="nav-btn" id="btnNav2" onclick="showPage('reportPage')" style="display:none;">📊 รายงาน</button>
+      <button class="nav-btn" id="btnNavConfig" onclick="openConfigModal()" style="display:none;" title="ตั้งค่าปีการศึกษา">⚙️</button>
       <button class="nav-btn danger" id="btnLogout" onclick="logout()" style="display:none;">ออกจากระบบ</button>
     </div>
   </div>
@@ -391,6 +392,27 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
   </div>
 </div>
 
+<!-- Config Modal -->
+<div class="modal fade" id="configModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">⚙️ ตั้งค่าปีการศึกษา</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label fw-semibold">ปีการศึกษา / เทอม ที่เปิดใช้งาน</label>
+        <input type="text" class="form-control form-control-lg" id="configYearInput" placeholder="เช่น 1/2569">
+        <small class="text-muted mt-2 d-block">📌 ระบบจะสร้างไฟล์ <b>Attendance_[เทอม]</b> ใหม่อัตโนมัติถ้ายังไม่มี</small>
+      </div>
+      <div class="modal-footer border-0">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+        <button class="btn btn-primary fw-semibold px-4" onclick="saveConfig()">บันทึก</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
@@ -467,6 +489,37 @@ function showPage(page) {
 }
 
 // =============================================
+// Config (Admin only)
+// =============================================
+function openConfigModal() {
+  document.getElementById('configYearInput').value = currentYear;
+  new bootstrap.Modal(document.getElementById('configModal')).show();
+}
+
+async function saveConfig() {
+  const val = document.getElementById('configYearInput').value.trim();
+  if (!val || !/^\d\/\d{4}$/.test(val)) {
+    showToast('รูปแบบไม่ถูกต้อง ตัวอย่าง: 1/2569', 'error'); return;
+  }
+  showProgress('กำลังบันทึก...');
+  try {
+    await api('updateConfig', { active_year: val });
+    bootstrap.Modal.getInstance(document.getElementById('configModal')).hide();
+    currentYear = val;
+    // อัปเดตแสดงผลทุกจุด
+    document.getElementById('checkClassDisplay').textContent =
+      `ชั้น ${currentUser.isAdmin ? 'ทุกชั้น' : currentUser.classroom} • ปีการศึกษา ${currentYear}`;
+    document.getElementById('rptClassroom') && loadReport();
+    showToast('✅ เปลี่ยนปีการศึกษาเป็น ' + val + ' สำเร็จ', 'success');
+    // โหลดข้อมูลใหม่ด้วยปีใหม่
+    await loadAttendance();
+  } catch(e) {
+    showToast(e.message, 'error');
+  }
+  hideProgress();
+}
+
+// =============================================
 // Init
 // =============================================
 window.addEventListener('DOMContentLoaded', async () => {
@@ -501,6 +554,7 @@ function afterLogin() {
   document.getElementById('teacherBadge').textContent = `🎓 ${currentUser.name} • ${currentUser.isAdmin ? 'ผู้บริหาร' : currentUser.classroom}`;
   document.getElementById('teacherBadge').style.display = 'inline-flex';
   ['btnNav1','btnNav2','btnLogout'].forEach(id => document.getElementById(id).style.display='inline-block');
+  document.getElementById('btnNavConfig').style.display = currentUser.isAdmin ? 'inline-block' : 'none';
 
   // รายงาน: ถ้าแอดมิน ให้เลือกห้องได้
   setupReportClassroomSelect();
@@ -514,7 +568,7 @@ function afterLogin() {
 function logout() {
   currentUser = null; students = []; attendance = {};
   document.getElementById('teacherBadge').style.display='none';
-  ['btnNav1','btnNav2','btnLogout'].forEach(id => document.getElementById(id).style.display='none');
+  ['btnNav1','btnNav2','btnLogout','btnNavConfig'].forEach(id => document.getElementById(id).style.display='none');
   document.getElementById('loginId').value='';
   document.getElementById('loginPass').value='';
   showPage('loginPage');
