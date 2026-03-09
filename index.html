@@ -155,6 +155,36 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
 .report-table .s-ล { color: var(--status-leave-fg);   background: var(--status-leave-bg);   font-weight: 700; border-radius: 4px; }
 .report-table .s-ส { color: var(--status-late-fg);    background: var(--status-late-bg);    font-weight: 700; border-radius: 4px; }
 
+/* ===================== Calendar ===================== */
+.cal-nav-btn { width:34px;height:34px;border-radius:8px;border:1.5px solid #cbd5e1;background:#fff;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all .15s; }
+.cal-nav-btn:hover { background:#0ea5e9;border-color:#0ea5e9;color:#fff; }
+.cal-dot { display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:middle; }
+
+.cal-grid { display:grid;grid-template-columns:repeat(7,1fr);gap:4px; }
+.cal-day-name { text-align:center;font-size:.75rem;font-weight:700;color:#94a3b8;padding:4px 0; }
+
+.cal-cell { border-radius:10px;border:1.5px solid #e2e8f0;background:#fff;cursor:pointer;transition:all .18s;overflow:hidden;min-height:74px;padding:6px; }
+.cal-cell:hover { border-color:#0ea5e9;box-shadow:0 2px 10px rgba(14,165,233,.2);transform:translateY(-1px); }
+.cal-cell.empty { border:none;background:transparent;cursor:default;pointer-events:none; }
+.cal-cell.today { border-color:#0ea5e9;background:#f0f9ff; }
+.cal-cell.has-data { border-color:#bbf7d0; }
+.cal-cell.weekend { background:#fafafa; }
+
+.cal-date { font-size:.85rem;font-weight:700;color:#374151;margin-bottom:4px; }
+.cal-date.today-num { color:#0ea5e9; }
+
+.cal-dots { display:flex;flex-wrap:wrap;gap:2px;margin-top:2px; }
+.cal-dot-sm { width:8px;height:8px;border-radius:50%; }
+
+.cal-summary { font-size:.65rem;color:#6b7280;margin-top:4px;line-height:1.4; }
+.cal-no-data { font-size:.65rem;color:#cbd5e1;margin-top:6px; }
+
+/* Calendar Day Modal students */
+.cal-stu-row { display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid #f1f5f9; }
+.cal-stu-row:last-child { border-bottom:none; }
+.cal-stu-name { flex:1;font-size:.9rem; }
+.cal-stu-num { width:28px;text-align:center;font-size:.8rem;color:#9ca3af;flex-shrink:0; }
+
 /* Month filter buttons */
 .month-btn { padding: 6px 14px; border-radius: 20px; border: 1.5px solid #cbd5e1; background: #fff; color: #374151; font-size: .82rem; font-weight: 600; cursor: pointer; transition: all .15s; font-family: inherit; }
 .month-btn:hover  { border-color: #0ea5e9; color: #0ea5e9; }
@@ -226,8 +256,9 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
     </a>
     <div class="nav-info">
       <div class="teacher-badge" id="teacherBadge">🎓 ครูสมศรี • ป.3</div>
-      <button class="nav-btn" id="btnNav1" onclick="showPage('checkPage')" style="display:none;">✅ เช็คชื่อ</button>
-      <button class="nav-btn" id="btnNav2" onclick="showPage('reportPage')" style="display:none;">📊 รายงาน</button>
+      <button class="nav-btn" id="btnNav1" onclick="showPage('checkPage')"    style="display:none;">✅ เช็คชื่อ</button>
+      <button class="nav-btn" id="btnNav3" onclick="openCalendarPage()"       style="display:none;">📅 ปฏิทิน</button>
+      <button class="nav-btn" id="btnNav2" onclick="showPage('reportPage')"   style="display:none;">📊 รายงาน</button>
       <button class="nav-btn" id="btnNavConfig" onclick="openConfigModal()" style="display:none;" title="ตั้งค่าปีการศึกษา">⚙️</button>
       <button class="nav-btn danger" id="btnLogout" onclick="logout()" style="display:none;">ออกจากระบบ</button>
     </div>
@@ -394,6 +425,65 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
       <div class="report-summary mt-2" id="reportSummary"></div>
     </div>
 
+  </div>
+</div>
+
+<!-- Calendar Page -->
+<div id="calendarPage" class="page-section">
+  <div class="container-main">
+    <div class="app-card">
+      <!-- Header -->
+      <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-3">
+          <button class="cal-nav-btn" onclick="calChangeMonth(-1)">&#9664;</button>
+          <div id="calMonthLabel" style="font-size:1.15rem;font-weight:700;min-width:160px;text-align:center;"></div>
+          <button class="cal-nav-btn" onclick="calChangeMonth(1)">&#9654;</button>
+        </div>
+        <div class="d-flex gap-2 align-items-center">
+          <select id="calClassroom" onchange="renderCalendar()" style="border-radius:8px;border:1.5px solid #cbd5e1;padding:5px 10px;font-family:inherit;font-size:.9rem;"></select>
+        </div>
+      </div>
+
+      <!-- Legend -->
+      <div class="d-flex gap-3 mb-3 flex-wrap" style="font-size:.8rem;">
+        <span><span class="cal-dot" style="background:#22c55e;"></span> มาเรียน</span>
+        <span><span class="cal-dot" style="background:#ef4444;"></span> ขาด</span>
+        <span><span class="cal-dot" style="background:#f59e0b;"></span> ลา</span>
+        <span><span class="cal-dot" style="background:#818cf8;"></span> สาย</span>
+        <span><span class="cal-dot" style="background:#e2e8f0;"></span> ยังไม่เช็ค</span>
+      </div>
+
+      <!-- Calendar Grid -->
+      <div id="calGrid" class="cal-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Calendar Day Modal -->
+<div class="modal fade" id="calDayModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content" style="border-radius:16px;overflow:hidden;">
+      <div class="modal-header" style="background:linear-gradient(135deg,#1e3a5f,#0ea5e9);color:white;border:none;">
+        <h5 class="modal-title" id="calDayModalTitle" style="font-weight:700;"></h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-0">
+        <!-- Quick buttons -->
+        <div class="d-flex gap-2 p-3 border-bottom flex-wrap">
+          <button class="quick-btn present" onclick="calSetAll('ม')">✅ ทุกคนมา</button>
+          <button class="quick-btn absent"  onclick="calSetAll('ข')">❌ ทุกคนขาด</button>
+          <button class="quick-btn leave"   onclick="calSetAll('ล')">📋 ทุกคนลา</button>
+          <button class="quick-btn late"    onclick="calSetAll('ส')">⏰ ทุกคนสาย</button>
+        </div>
+        <!-- Student list -->
+        <div id="calDayStudents" style="max-height:420px;overflow-y:auto;"></div>
+        <!-- Save bar -->
+        <div class="d-flex justify-content-between align-items-center p-3 border-top" style="background:#f8fafc;">
+          <span id="calDayChecked" style="font-size:.85rem;color:#6b7280;"></span>
+          <button class="btn-save-big" onclick="calSaveDay()" style="min-width:140px;">💾 บันทึก</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -591,7 +681,7 @@ function afterLogin() {
   // Update UI
   document.getElementById('teacherBadge').textContent = `🎓 ${currentUser.name} • ${currentUser.isAdmin ? 'ผู้บริหาร' : currentUser.classroom}`;
   document.getElementById('teacherBadge').style.display = 'inline-flex';
-  ['btnNav1','btnNav2','btnLogout'].forEach(id => document.getElementById(id).style.display='inline-block');
+  ['btnNav1','btnNav2','btnNav3','btnLogout'].forEach(id => document.getElementById(id).style.display='inline-block');
   document.getElementById('btnNavConfig').style.display = currentUser.isAdmin ? 'inline-block' : 'none';
 
   // รายงาน: ถ้าแอดมิน ให้เลือกห้องได้
@@ -620,7 +710,7 @@ function logout() {
   currentUser = null; students = []; attendance = {};
   const safe = (id, fn) => { const el = document.getElementById(id); if (el) fn(el); };
   safe('teacherBadge', el => el.style.display='none');
-  ['btnNav1','btnNav2','btnLogout','btnNavConfig'].forEach(id => safe(id, el => el.style.display='none'));
+  ['btnNav1','btnNav2','btnNav3','btnLogout','btnNavConfig'].forEach(id => safe(id, el => el.style.display='none'));
   safe('loginPass', el => { el.value=''; el.focus(); });
   showPage('loginPage');
   showToast('ออกจากระบบแล้ว','info');
@@ -1398,6 +1488,240 @@ function openPrint(html) {
   if (!w) { showToast('กรุณาอนุญาต Popup ในเบราว์เซอร์','error'); return; }
   w.document.write(html);
   w.document.close();
+}
+
+// =============================================
+// Calendar Page
+// =============================================
+let calYear  = 0;
+let calMonth = 0;   // 1-12 (พ.ศ.)
+let calAllData   = null;  // ข้อมูลทั้งเทอมจาก getReport
+let calStudents  = [];
+let calDayData   = {};    // date-string → {studentId→status}
+let calEditDate  = '';    // วันที่ที่เปิด modal
+let calEditAtt   = {};    // สำเนาสถานะสำหรับแก้ไข
+let calModalInst = null;
+
+const THAI_MONTHS_CAL = ['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
+                          'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+const DAY_NAMES = ['อา','จ','อ','พ','พฤ','ศ','ส'];
+
+function openCalendarPage() {
+  // ตั้งเดือนเริ่มต้นเป็นเดือนปัจจุบัน (แปลงจาก พ.ศ. → ค.ศ.)
+  const now = new Date();
+  calYear  = now.getFullYear() + 543; // เก็บเป็น พ.ศ.
+  calMonth = now.getMonth() + 1;
+
+  // setup classroom select
+  setupCalClassroomSelect();
+  showPage('calendarPage');
+  loadCalendarData();
+}
+
+function setupCalClassroomSelect() {
+  const sel = document.getElementById('calClassroom');
+  sel.innerHTML = '';
+  if (currentUser.isAdmin) {
+    ['อ.2','อ.3','ป.1','ป.2','ป.3','ป.4','ป.5','ป.6','ม.1','ม.2','ม.3'].forEach(c => {
+      sel.innerHTML += `<option value="${c}">${c}</option>`;
+    });
+    // ตั้ง default เป็น ป.1
+    sel.value = 'ป.1';
+  } else {
+    sel.innerHTML = `<option value="${currentUser.classroom}">${currentUser.classroom}</option>`;
+  }
+}
+
+function calChangeMonth(dir) {
+  calMonth += dir;
+  if (calMonth > 12) { calMonth = 1;  calYear++; }
+  if (calMonth < 1)  { calMonth = 12; calYear--; }
+  loadCalendarData();
+}
+
+async function loadCalendarData() {
+  const cls = document.getElementById('calClassroom').value;
+  const mm  = String(calMonth).padStart(2,'0');
+  showProgress('กำลังโหลดปฏิทิน...');
+  try {
+    // โหลดข้อมูลเดือนนี้
+    const raw = await api('getReport', { year: currentYear, classroom: cls, month: mm });
+    calStudents = raw.students || [];
+
+    // สร้าง calDayData: date → {studentId→status}
+    calDayData = {};
+    raw.dates.forEach(d => {
+      calDayData[d] = {};
+      calStudents.forEach(s => {
+        const v = (raw.attendance[s.studentId]||{})[d] || '';
+        if (v) calDayData[d][s.studentId] = v;
+      });
+    });
+
+    renderCalendar();
+  } catch(e) {
+    showToast('โหลดปฏิทินไม่สำเร็จ: ' + e.message, 'error');
+  }
+  hideProgress();
+}
+
+function renderCalendar() {
+  const cls = document.getElementById('calClassroom').value;
+  document.getElementById('calMonthLabel').textContent = `${THAI_MONTHS_CAL[calMonth]} ${calYear}`;
+
+  // หาวันแรกของเดือน (แปลง พ.ศ. → ค.ศ.)
+  const firstDay = new Date(calYear - 543, calMonth - 1, 1);
+  const daysInMonth = new Date(calYear - 543, calMonth, 0).getDate();
+  const startDow = firstDay.getDay(); // 0=อา
+
+  // วันนี้
+  const now = new Date();
+  const todayStr = pad(now.getDate())+'/'+pad(now.getMonth()+1)+'/'+(now.getFullYear()+543);
+
+  let html = '';
+  // หัว
+  DAY_NAMES.forEach(n => { html += `<div class="cal-day-name">${n}</div>`; });
+
+  // Empty cells ก่อนวันที่ 1
+  for (let i=0; i<startDow; i++) html += `<div class="cal-cell empty"></div>`;
+
+  for (let d=1; d<=daysInMonth; d++) {
+    const dateStr = pad(d)+'/'+pad(calMonth)+'/'+calYear;
+    const isToday   = dateStr === todayStr;
+    const isWeekend = ((startDow+d-1)%7 === 0 || (startDow+d-1)%7 === 6);
+    const isFuture  = new Date(calYear-543, calMonth-1, d) > now;
+    const dayAtt    = calDayData[dateStr] || null;
+    const hasData   = dayAtt && Object.keys(dayAtt).length > 0;
+
+    // นับสถิติ
+    let cntM=0,cntK=0,cntL=0,cntS=0,cntNone=0;
+    if (hasData) {
+      calStudents.forEach(s => {
+        const v = dayAtt[s.studentId]||'';
+        if(v==='ม')cntM++; else if(v==='ข')cntK++; else if(v==='ล')cntL++; else if(v==='ส')cntS++; else cntNone++;
+      });
+    }
+
+    // สร้าง dots
+    let dotsHtml = '';
+    if (hasData) {
+      if(cntM)  dotsHtml += `<div class="cal-dot-sm" style="background:#22c55e;" title="มา ${cntM}"></div>`.repeat(Math.min(cntM,5));
+      if(cntK)  dotsHtml += `<div class="cal-dot-sm" style="background:#ef4444;" title="ขาด ${cntK}"></div>`.repeat(Math.min(cntK,5));
+      if(cntL)  dotsHtml += `<div class="cal-dot-sm" style="background:#f59e0b;" title="ลา ${cntL}"></div>`.repeat(Math.min(cntL,5));
+      if(cntS)  dotsHtml += `<div class="cal-dot-sm" style="background:#818cf8;" title="สาย ${cntS}"></div>`.repeat(Math.min(cntS,5));
+    }
+
+    // summary text
+    let summaryHtml = '';
+    if (hasData) {
+      const parts = [];
+      if(cntM) parts.push(`<span style="color:#16a34a;">ม${cntM}</span>`);
+      if(cntK) parts.push(`<span style="color:#dc2626;">ข${cntK}</span>`);
+      if(cntL) parts.push(`<span style="color:#d97706;">ล${cntL}</span>`);
+      if(cntS) parts.push(`<span style="color:#6366f1;">ส${cntS}</span>`);
+      if(cntNone) parts.push(`<span style="color:#94a3b8;">?${cntNone}</span>`);
+      summaryHtml = `<div class="cal-summary">${parts.join(' ')}</div>`;
+    } else if (!isFuture) {
+      summaryHtml = `<div class="cal-no-data">ยังไม่เช็ค</div>`;
+    }
+
+    const clickable = !isFuture ? `onclick="openCalDay('${dateStr}')"` : '';
+    const cellClass = ['cal-cell', isToday?'today':'', isWeekend?'weekend':'', hasData?'has-data':''].filter(Boolean).join(' ');
+
+    html += `<div class="${cellClass}" ${clickable}>
+      <div class="cal-date ${isToday?'today-num':''}">${d}${isToday?' <span style="font-size:.6rem;color:#0ea5e9;">วันนี้</span>':''}</div>
+      <div class="cal-dots">${dotsHtml}</div>
+      ${summaryHtml}
+    </div>`;
+  }
+
+  document.getElementById('calGrid').innerHTML = html;
+}
+
+// เปิด modal วันที่เลือก
+function openCalDay(dateStr) {
+  calEditDate = dateStr;
+  // สำเนาข้อมูลวันนั้นมาแก้ไข
+  calEditAtt = {};
+  calStudents.forEach(s => {
+    calEditAtt[s.studentId] = (calDayData[dateStr]||{})[s.studentId] || '';
+  });
+
+  // หัว modal
+  const p = dateStr.split('/');
+  const dow = new Date(parseInt(p[2])-543, parseInt(p[1])-1, parseInt(p[0])).getDay();
+  const dowNames = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+  document.getElementById('calDayModalTitle').textContent =
+    `วัน${dowNames[dow]}ที่ ${parseInt(p[0])} ${THAI_MONTHS_CAL[parseInt(p[1])]} ${p[2]}`;
+
+  renderCalDayStudents();
+
+  calModalInst = new bootstrap.Modal(document.getElementById('calDayModal'));
+  calModalInst.show();
+}
+
+function renderCalDayStudents() {
+  const checked = Object.values(calEditAtt).filter(v=>v).length;
+  document.getElementById('calDayChecked').textContent = `เช็คแล้ว ${checked}/${calStudents.length} คน`;
+
+  document.getElementById('calDayStudents').innerHTML = calStudents.map((s,i) => {
+    const st = calEditAtt[s.studentId]||'';
+    const map = {'ม':'present','ข':'absent','ล':'leave','ส':'late'};
+    const btns = ['ม','ข','ล','ส'].map(v =>
+      `<button class="status-btn btn-${map[v]||'present'} ${st===v?'active':''}"
+        onclick="calSetStatus('${s.studentId}','${v}',this)">${v}</button>`
+    ).join('');
+    return `<div class="cal-stu-row" id="calrow-${s.studentId}">
+      <div class="cal-stu-num">${i+1}</div>
+      <div class="cal-stu-name">${s.name}</div>
+      <div class="status-btns">${btns}</div>
+    </div>`;
+  }).join('');
+}
+
+function calSetStatus(studentId, status, btnEl) {
+  calEditAtt[studentId] = status;
+  // update UI ของแถวนั้น
+  const row = document.getElementById('calrow-'+studentId);
+  row.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+  // update counter
+  const checked = Object.values(calEditAtt).filter(v=>v).length;
+  document.getElementById('calDayChecked').textContent = `เช็คแล้ว ${checked}/${calStudents.length} คน`;
+}
+
+function calSetAll(status) {
+  calStudents.forEach(s => { calEditAtt[s.studentId] = status; });
+  renderCalDayStudents();
+}
+
+async function calSaveDay() {
+  const cls = document.getElementById('calClassroom').value;
+  const records = calStudents
+    .filter(s => calEditAtt[s.studentId])
+    .map(s => ({ studentId: s.studentId, status: calEditAtt[s.studentId] }));
+
+  if (!records.length) { showToast('ยังไม่ได้เช็คชื่อใคร','error'); return; }
+
+  showProgress('กำลังบันทึก...');
+  try {
+    await api('saveAttendance', {
+      year: currentYear, classroom: cls,
+      date: calEditDate, records,
+      teacherName: currentUser.name
+    });
+
+    // อัปเดต calDayData ใน memory
+    calDayData[calEditDate] = {};
+    records.forEach(r => { calDayData[calEditDate][r.studentId] = r.status; });
+
+    calModalInst?.hide();
+    renderCalendar();
+    showToast(`บันทึก ${calEditDate} สำเร็จ ✅`, 'success');
+  } catch(e) {
+    showToast('บันทึกไม่สำเร็จ: '+e.message, 'error');
+  }
+  hideProgress();
 }
 </script>
 </body>
