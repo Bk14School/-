@@ -3443,7 +3443,7 @@ function printHomeroomChoice(mode) {
   else printMonthlyHomeroomReport(document.getElementById('hrMonthPicker').value);
 }
 
-// 5. พิมพ์รายวัน
+// 5. พิมพ์รายงานโฮมรูมรายวัน
 async function printDailyHomeroomReport() {
   showProgress('กำลังดึงข้อมูล...');
   try {
@@ -3460,7 +3460,6 @@ async function printDailyHomeroomReport() {
     const school = document.getElementById('navSchoolName')?.textContent || 'โรงเรียนบ้านคลอง 14';
     let abs = [], lea = [], sic = [];
     
-    // ดึงคนที่ไม่ได้มาเรียนจากหน้าจอเช็คชื่อปัจจุบัน
     students.forEach(s => {
       if(attendance[s.studentId] === 'ข') abs.push(s.name);
       else if(attendance[s.studentId] === 'ล') lea.push(s.name);
@@ -3500,8 +3499,7 @@ async function printDailyHomeroomReport() {
   hideProgress();
 }
 
-// 6. พิมพ์รายเดือน (ดึงข้อมูลทั้งเดือนจากไฟล์เทอม)
-// 6. พิมพ์รายเดือน (ดึงข้อมูลทั้งเดือนจากไฟล์เทอม)
+// 6. พิมพ์รายงานโฮมรูมรายเดือน (เรียงลำดับวันที่ถูกต้อง)
 async function printMonthlyHomeroomReport(month) {
   showProgress('กำลังดึงข้อมูลทั้งเดือน...');
   try {
@@ -3509,18 +3507,24 @@ async function printMonthlyHomeroomReport(month) {
     const logs = await api('getHomeroomLogs', { year: currentYear, classroom: currentUser.classroom });
     
     const THAI_M =['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+    const THAI_MONTH_NAME = THAI_M[parseInt(month)];
     const school = document.getElementById('navSchoolName')?.textContent || 'โรงเรียน';
     const logMap = {}; logs.forEach(l => logMap[l.date] = l);
 
     if(reportData.dates.length === 0) { showToast('เดือนนี้ยังไม่มีการเช็คชื่อ', 'error'); hideProgress(); return; }
 
-    // ⭐️ เพิ่มการเรียงลำดับวันที่ตรงนี้
+    // เรียงวันที่จากน้อยไปมาก
     const sortedDates = reportData.dates.sort((a, b) => {
-        return parseInt(a.split('/')[0]) - parseInt(b.split('/')[0]);
+        const da = a.split('/').map(Number);
+        const db = b.split('/').map(Number);
+        const dateA = da[2] * 10000 + da[1] * 100 + da[0];
+        const dateB = db[2] * 10000 + db[1] * 100 + db[0];
+        return dateA - dateB;
     });
 
+    const displayYear = sortedDates[0].split('/')[2];
+
     let rows = '';
-    // ⭐️ เปลี่ยนจาก reportData.dates.forEach เป็น sortedDates.forEach
     sortedDates.forEach((dateStr, idx) => {
       let abs = [];
       reportData.students.forEach(s => {
@@ -3543,7 +3547,7 @@ async function printMonthlyHomeroomReport(month) {
       </tr>`;
     });
 
-     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>สมุดโฮมรูม ${THAI_MONTH_NAME}</title>
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>สมุดโฮมรูม ${THAI_MONTH_NAME}</title>
     <style>@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap');
     @page{size:A4 landscape; margin:15mm;} body{font-family:'Sarabun',sans-serif; font-size:13px;}
     table{width:100%; border-collapse:collapse; margin-top:10px;} th,td{border:1px solid #000; padding:6px; vertical-align:top;}
@@ -3551,7 +3555,7 @@ async function printMonthlyHomeroomReport(month) {
       <div class="head">
         <h2>บันทึกการจัดกิจกรรมโฮมรูม (Homeroom) รายเดือน</h2>
         <h3>${school}</h3>
-        <p><b>ชั้นเรียน:</b> ${currentUser.classroom} &nbsp;|&nbsp; <b>เดือน:</b> ${THAI_MONTH_NAME} ${currentYear.split('/')[1]} &nbsp;|&nbsp; <b>ครู:</b> ${currentUser.name}</p>
+        <p><b>ชั้นเรียน:</b> ${currentUser.classroom} &nbsp;|&nbsp; <b>เดือน:</b> ${THAI_MONTH_NAME} ${displayYear} &nbsp;|&nbsp; <b>ครู:</b> ${currentUser.name}</p>
       </div>
       <table>
         <thead><tr><th width="40">ที่</th><th width="60">ว/ด/ป</th><th width="300">หัวข้อที่อบรม</th><th width="200">นักเรียนที่ ข/ล/ป</th><th width="200">หมายเหตุ</th><th width="80">ลายมือชื่อ</th></tr></thead>
@@ -3563,7 +3567,6 @@ async function printMonthlyHomeroomReport(month) {
         <div>ลงชื่อ.......................................................ผู้อำนวยการ</div>
       </div><script>window.onload=()=>window.print();<\/script></body></html>`;
     openPrint(html);
-    
   } catch(e) { showToast(e.message, 'error'); }
   hideProgress();
 }
