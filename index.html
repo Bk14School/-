@@ -1394,11 +1394,11 @@ function printReport() {
   const html = buildPrintPage({
     school, cls, currentYear, printDate, threshold,
     // หาชื่อเดือนจาก dates จริง
-    const THAI_MONTHS_FULL2 = ['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
-    const monthLabelSet = {};
-    dates.forEach(d=>{const p=d.split('/');const mm=parseInt(p[1]);const yy=p[2];monthLabelSet[p[1]+'/'+yy]=THAI_MONTHS_FULL2[mm]+' '+yy;});
-    const monthLabel = Object.values(monthLabelSet).join(', ') || 'ทั้งหมด';
-    title: `สรุปการเข้าเรียน | ${monthLabel}`,
+    const _TM = ['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+    const _mSet = {};
+    dates.forEach(d=>{const p=d.split('/');_mSet[p[1]+'/'+p[2]]=_TM[parseInt(p[1])]+' '+p[2];});
+    const _monthLabel = Object.values(_mSet).join(', ') || 'ทั้งหมด';
+    title: `สรุปการเข้าเรียน | ${_monthLabel}`,
     subTitle: `ปีการศึกษา ${currentYear} | ชั้น ${cls} | ${dates.length} วันเรียน`,
     orientation: 'landscape',
     tableHead: `<tr>
