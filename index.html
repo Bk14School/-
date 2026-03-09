@@ -964,7 +964,9 @@ function renderDashboard() {
   let html = '';
   let sumTotal=0, sumP=0, sumA=0, sumL=0, sumLa=0;
 
-  dashData.forEach(d => {
+  if(!dashData || !dashData.classes) return;
+
+  dashData.classes.forEach(d => {
     const total = d.total || 0;
     const p = d.p||0, a = d.a||0, l = d.l||0, la = d.la||0;
     sumTotal += total; sumP += p; sumA += a; sumL += l; sumLa += la;
@@ -983,7 +985,7 @@ function renderDashboard() {
     </tr>`;
   });
 
-  if (dashData.length === 0) {
+  if (dashData.classes.length === 0) {
     html = `<tr><td colspan="7" class="text-center py-5 text-muted">ไม่พบข้อมูลของปีการศึกษา ${currentYear}</td></tr>`;
   }
   tbody.innerHTML = html;
@@ -1003,7 +1005,7 @@ function renderDashboard() {
 }
 
 function printDashboard() {
-  if (!dashData || dashData.length === 0) { showToast('ไม่มีข้อมูลให้พิมพ์', 'error'); return; }
+  if (!dashData || !dashData.classes || dashData.classes.length === 0) { showToast('ไม่มีข้อมูลให้พิมพ์', 'error'); return; }
   const mode = document.getElementById('dashMode').value;
   const school = document.getElementById('navSchoolName')?.textContent || 'โรงเรียนบ้านคลอง 14';
   const printDate = new Date().toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
@@ -1018,7 +1020,7 @@ function printDashboard() {
   }
 
   let sumTotal=0, sumP=0, sumA=0, sumL=0, sumLa=0;
-  const rowsHtml = dashData.map(d => {
+  const rowsHtml = dashData.classes.map(d => {
     const total = d.total || 0;
     const p = d.p||0, a = d.a||0, l = d.l||0, la = d.la||0;
     sumTotal += total; sumP += p; sumA += a; sumL += l; sumLa += la;
@@ -1038,7 +1040,7 @@ function printDashboard() {
 
   const tableHead = `<tr>
     <th style="background:#1e3a5f;color:#fff;">ระดับชั้น</th>
-    <th style="background:#374151;color:#fff;">${mode==='monthly'?'นร.ทั้งหมด × วันเรียน':'นักเรียนทั้งหมด'}</th>
+    <th style="background:#374151;color:#fff;">${mode==='monthly'?'เป้าหมาย (คน×วัน)':'นักเรียนทั้งหมด (คน)'}</th>
     <th style="background:#065f46;color:#fff;">มา</th>
     <th style="background:#991b1b;color:#fff;">ขาด</th>
     <th style="background:#92400e;color:#fff;">ลา/ป่วย</th>
@@ -1056,6 +1058,43 @@ function printDashboard() {
     <td style="text-align:center; color:${sumPct<80?'#991b1b':'#065f46'};">${sumPct}%</td>
   </tr>`;
 
+  // สร้างตารางเพิ่มเติมสำหรับดูแบบ "รายวัน" (ถ้าเลือกดูแบบเดือน)
+  let extraContent = '';
+  if (mode === 'monthly' && dashData.days && dashData.days.length > 0) {
+    let dailyRowsHtml = dashData.days.map(d => {
+      const pct = d.total ? Math.round((d.p / d.total) * 100) : 0;
+      return `<tr>
+        <td style="text-align:center; font-weight:bold; font-size:11px;">${d.date}</td>
+        <td style="text-align:center; font-size:11px;">${d.total}</td>
+        <td style="text-align:center; color:#065f46; font-size:11px; font-weight:bold;">${d.p}</td>
+        <td style="text-align:center; color:#991b1b; font-size:11px; font-weight:bold;">${d.a}</td>
+        <td style="text-align:center; color:#92400e; font-size:11px; font-weight:bold;">${d.l}</td>
+        <td style="text-align:center; color:#3730a3; font-size:11px; font-weight:bold;">${d.la}</td>
+        <td style="text-align:center; font-weight:bold; font-size:11px; color:${pct<80?'#991b1b':'#065f46'};">${pct}%</td>
+      </tr>`;
+    }).join('');
+
+    extraContent = `
+      <div style="margin-top:15px; margin-bottom:6px; font-size:13px; font-weight:700; color:#1e3a5f;">
+        📅 สรุปสถิติภาพรวมโรงเรียนแยกรายวัน ตลอดเดือน
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style="background:#1e3a5f;color:#fff;">วันที่</th>
+            <th style="background:#374151;color:#fff;">เป้าหมาย (คน)</th>
+            <th style="background:#065f46;color:#fff;">มา</th>
+            <th style="background:#991b1b;color:#fff;">ขาด</th>
+            <th style="background:#92400e;color:#fff;">ลา/ป่วย</th>
+            <th style="background:#3730a3;color:#fff;">สาย</th>
+            <th style="background:#1e3a5f;color:#fff;">% มาเรียน</th>
+          </tr>
+        </thead>
+        <tbody>${dailyRowsHtml}</tbody>
+      </table>
+    `;
+  }
+
   const html = buildPrintPage({
     school, cls: 'ทุกระดับชั้น', currentYear, printDate, threshold: 3,
     title: `สถิติการมาเรียน ภาพรวมโรงเรียน`,
@@ -1064,11 +1103,11 @@ function printDashboard() {
     tableHead: tableHead,
     tableBody: tableBody,
     summary: `ข้อมูล ณ วันที่พิมพ์ : ${printDate}`,
-    alertNote: mode==='monthly' ? '* หมายเหตุ: คอลัมน์ที่ 2 (นร.ทั้งหมด × วันเรียน) คือการนับรวมจำนวนสิทธิ์การเข้าเรียนทั้งหมดของระดับชั้นในเดือนนั้น' : ''
+    alertNote: '',
+    extraContent: extraContent // โยนตารางรายวันเข้าไป
   });
   openPrint(html);
 }
-
 
 // =============================================
 // Config (Admin only)
@@ -1757,7 +1796,7 @@ function printReport() {
   openPrint(html);
 }
 
-function buildPrintPage({school,cls,currentYear,printDate,title,subTitle,orientation,tableHead,tableBody,summary,alertNote}) {
+function buildPrintPage({school,cls,currentYear,printDate,title,subTitle,orientation,tableHead,tableBody,summary,alertNote,extraContent=''}) {
   return `<!DOCTYPE html><html><head><meta charset="utf-8">
   <title>${title} ${cls}</title>
   <style>
@@ -1771,16 +1810,14 @@ function buildPrintPage({school,cls,currentYear,printDate,title,subTitle,orienta
     .print-header .stamp  { text-align:right; font-size:10px; color:#888; }
     .print-title { text-align:center; font-size:13px; font-weight:700; margin-bottom:8px; color:#1e3a5f; }
     table { width:100%; border-collapse:collapse; table-layout:auto; }
-    th,td { border:1px solid #e2e8f0; padding:3px 4px; }
-    th    { font-size:9px; font-weight:600; }
-    td    { font-size:10px; vertical-align:middle; }
+    th,td { border:1px solid #e2e8f0; padding:4px 5px; }
+    th    { font-size:10px; font-weight:600; }
+    td    { font-size:11px; vertical-align:middle; }
     tbody tr:nth-child(even) { background:#fafafa; }
-    tbody tr:hover { background:#f0f9ff; }
-    td:nth-child(2) { white-space:nowrap; max-width:145px; overflow:hidden; text-overflow:ellipsis; }
     .print-summary { margin-top:8px; font-size:10px; color:#555; border-top:1px solid #e2e8f0; padding-top:6px; }
     .print-alert   { margin-top:6px; font-size:10px; color:#991b1b; }
-    .sign-row      { display:flex; justify-content:space-around; margin-top:20px; }
-    .sign-box      { text-align:center; font-size:10px; }
+    .sign-row      { display:flex; justify-content:space-around; margin-top:30px; }
+    .sign-box      { text-align:center; font-size:11px; }
     .sign-line     { border-bottom:1px solid #666; width:160px; margin:0 auto 4px; padding-top:24px; }
     @media print { body{-webkit-print-color-adjust:exact;print-color-adjust:exact;} }
   </style></head><body>
@@ -1789,18 +1826,21 @@ function buildPrintPage({school,cls,currentYear,printDate,title,subTitle,orienta
     <div class="stamp">พิมพ์วันที่ ${printDate}</div>
   </div>
   <div class="print-title">${title}</div>
+  
+  <div style="font-size:13px; font-weight:700; color:#1e3a5f; margin-bottom:6px;">🏫 สรุปสถิติภาพรวมแยกตามระดับชั้น</div>
   <table><thead>${tableHead}</thead><tbody>${tableBody}</tbody></table>
+  
+  ${extraContent} <!-- ใส่ตารางรายวันตรงนี้ -->
+  
   <div class="print-summary">${summary}</div>
   ${alertNote ? `<div class="print-alert">${alertNote}</div>` : ''}
   <div class="sign-row">
-    <div class="sign-box"><div class="sign-line"></div>ครูผู้สอน / ผู้รายงาน</div>
-    <div class="sign-box"><div class="sign-line"></div>หัวหน้าฝ่ายวิชาการ</div>
+    <div class="sign-box"><div class="sign-line"></div>ผู้รายงาน</div>
     <div class="sign-box"><div class="sign-line"></div>ผู้อำนวยการโรงเรียน</div>
   </div>
   <script>window.onload=()=>window.print();<\/script>
   </body></html>`;
 }
-
 // =============================================
 // Student Timeline Panel
 // =============================================
