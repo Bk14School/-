@@ -527,7 +527,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   showProgress('กำลังโหลดระบบ...');
   try {
     const cfg = await api('getConfig');
-    currentYear = cfg.active_year || '1/2568';
+    currentYear = cfg.active_year || '';
     document.getElementById('loginYear').textContent = currentYear;
     document.getElementById('loginSchoolName').textContent = cfg.school_name || 'โรงเรียนบ้านคลอง 14';
   } catch(e) {}
@@ -562,6 +562,19 @@ function afterLogin() {
 
   showPage('checkPage');
   updateDateDisplay();
+
+  // ถ้ายังไม่มีปีการศึกษา ให้ Admin ตั้งค่าก่อน
+  if (!currentYear) {
+    if (currentUser.isAdmin) {
+      showToast('กรุณาตั้งค่าปีการศึกษาก่อนใช้งาน', 'error');
+      setTimeout(() => openConfigModal(), 600);
+    } else {
+      showToast('ยังไม่มีปีการศึกษา กรุณาแจ้งผู้บริหารตั้งค่าระบบก่อน', 'error');
+    }
+    hideProgress();
+    return;
+  }
+
   loadAttendance();
   hideProgress();
 }
