@@ -293,6 +293,24 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
   padding: 2px 8px; border-radius: 12px; cursor: pointer; transition: all 0.2s;
 }
 .btn-print-warn:hover { background: #fca5a5; color: #fff; }
+  /* ===== ตรึงรายชื่อเมื่อเลื่อนแนวนอนในมือถือ ===== */
+.student-grid { overflow-x: auto; padding-bottom: 4px; }
+#calDayStudents { overflow-x: auto; padding-bottom: 4px; }
+
+.sticky-name-wrap {
+  position: sticky;
+  left: 0;
+  background: inherit; /* ดึงสีของการ์ด (เขียว,แดง,ฯลฯ) มาเป็นสีพื้นหลัง */
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-right: 16px;
+  box-shadow: 4px 0 10px rgba(0,0,0,0.03); /* เพิ่มเงาบางๆ ให้ดูมีมิติแยกระหว่างชื่อกับปุ่ม */
+}
+
+/* บังคับให้แถวในปฏิทินมีพื้นหลังสีขาว (ไม่ให้ใสจนมองทะลุเห็นปุ่ม) */
+.cal-stu-row { background: #fff; min-width: max-content; }
 </style>
 </head>
 <body>
@@ -939,11 +957,13 @@ function renderStudents(filter='') {
   grid.innerHTML = list.map((s, i) => {
     const st = attendance[s.studentId] || '';
     const cls = st==='ม'?'status-present':st==='ข'?'status-absent':st==='ล'?'status-leave':st==='ส'?'status-late':'';
-    return `<div class="student-card ${cls}" id="card-${s.studentId}">
-      <div class="student-num">${i+1}</div>
-      <div>
-        <div class="student-name">${s.name}</div>
-        <div class="student-id-sm">รหัส: ${s.studentId}${s.classroom && currentUser.isAdmin ? ' • '+s.classroom:''}</div>
+return `<div class="student-card ${cls}" id="card-${s.studentId}">
+      <div class="sticky-name-wrap">
+        <div class="student-num">${i+1}</div>
+        <div>
+          <div class="student-name">${s.name}</div>
+          <div class="student-id-sm">รหัส: ${s.studentId}${s.classroom && currentUser.isAdmin ? ' • '+s.classroom:''}</div>
+        </div>
       </div>
       <div class="status-btns">
         <button class="status-btn btn-present ${st==='ม'?'active':''}" onclick="setStatus('${s.studentId}','ม')" title="มาเรียน">ม</button>
@@ -1297,9 +1317,9 @@ function renderReport(data) {
   }
 
   // --- Table ---
-  head.innerHTML = `<tr>
-    <th style="min-width:36px;">#</th>
-    <th style="min-width:160px;">ชื่อ-นามสกุล</th>
+head.innerHTML = `<tr>
+    <th style="min-width:36px; position:sticky; left:0; z-index:11;">#</th>
+    <th class="name-col">ชื่อ-นามสกุล</th>
     ${dates.map(d=>`<th title="${d}">${d.substring(0,5)}</th>`).join('')}
     <th style="background:#065f46;color:#fff;">มา</th>
     <th style="background:#991b1b;color:#fff;">ขาด</th>
@@ -1319,9 +1339,9 @@ function renderReport(data) {
     }).join('');
     const pct = dates.length ? Math.round(p/dates.length*100) : 0;
     const rowAlert = a >= threshold ? 'style="background:#fff5f5;"' : '';
-    return `<tr ${rowAlert}>
-      <td class="text-center text-muted">${i+1}</td>
-      <td>${s.name}${a>=threshold?' <span class="badge-alert-sm">⚠️</span>':''}</td>
+  return `<tr ${rowAlert}>
+      <td class="text-center text-muted" style="position:sticky; left:0; z-index:5; background:inherit;">${i+1}</td>
+      <td class="name-col" style="background:inherit; border-right:2px solid #e2e8f0;">${s.name}${a>=threshold?' <span class="badge-alert-sm">⚠️</span>':''}</td>
       ${cells}
       <td style="font-weight:700;color:var(--success);">${p}</td>
       <td style="font-weight:700;color:var(--danger);">${a}</td>
@@ -2396,9 +2416,11 @@ function renderCalDayStudents() {
       `<button class="status-btn btn-${map[v]||'present'} ${st===v?'active':''}"
         onclick="calSetStatus('${s.studentId}','${v}',this)">${v}</button>`
     ).join('');
-    return `<div class="cal-stu-row" id="calrow-${s.studentId}">
-      <div class="cal-stu-num">${i+1}</div>
-      <div class="cal-stu-name">${s.name}</div>
+  return `<div class="cal-stu-row" id="calrow-${s.studentId}">
+      <div class="sticky-name-wrap" style="gap:10px;">
+        <div class="cal-stu-num">${i+1}</div>
+        <div class="cal-stu-name" style="white-space:nowrap;">${s.name}</div>
+      </div>
       <div class="status-btns">${btns}</div>
     </div>`;
   }).join('');
