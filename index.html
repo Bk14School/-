@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -60,7 +59,7 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
 .container-main { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
 
 /* ===== Login Page ===== */
-.login-wrap { min-height: calc(100vh - 62px); display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #e0f2fe 0%, #f8fafc 60%, #fef3c7 100%); }
+.login-wrap { min-height: calc(100vh - 62px); display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #e0f2fe 0%, #f8fafc 60%, #fef3c7 100%); padding: 20px; }
 .login-card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow-lg); padding: 48px 40px; width: 100%; max-width: 400px; text-align: center; }
 .login-logo { width: 80px; height: 80px; border-radius: 50%; background: var(--primary); margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 2rem; font-weight: 700; box-shadow: 0 8px 20px rgba(14,165,233,0.3); }
 .login-card h2 { font-size: 1.4rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
@@ -68,6 +67,10 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
 .login-card .form-control { text-align: center; padding: 14px; font-size: 1rem; border-radius: var(--radius-sm); }
 .btn-login { width: 100%; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; border: none; padding: 14px; border-radius: var(--radius-sm); font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.3s; box-shadow: 0 6px 16px rgba(14,165,233,0.3); }
 .btn-login:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(14,165,233,0.4); }
+
+/* ปุ่ม Dashboard ใหม่ในหน้า Login */
+.btn-dashboard { width: 100%; background: #f8fafc; color: var(--primary-dark); border: 2px solid var(--primary-light); padding: 12px; border-radius: var(--radius-sm); font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.3s; margin-top: 14px; }
+.btn-dashboard:hover { background: var(--primary-light); border-color: var(--primary); transform: translateY(-1px); }
 
 /* ===== App Card ===== */
 .app-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px; margin-bottom: 20px; border: 1px solid rgba(0,0,0,0.02); }
@@ -77,10 +80,11 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
 .date-bar { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: #fff; border-radius: var(--radius-sm); padding: 16px 24px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
 .date-bar .date-txt { font-size: 1.1rem; font-weight: 600; }
 .date-bar .class-txt { font-size: 0.9rem; opacity: 0.85; }
-.date-nav { display: flex; align-items: center; gap: 8px; }
+.date-nav { display: flex; align-items: center; gap: 8px; flex-wrap: wrap;}
 .date-nav button { background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.3); padding: 6px 14px; border-radius: 50px; font-size: 0.85rem; cursor: pointer; font-family: inherit; transition: all 0.2s; }
 .date-nav button:hover { background: rgba(255,255,255,0.35); }
-.date-nav input[type=date] { background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.3); padding: 6px 10px; border-radius: 8px; font-size: 0.85rem; font-family: inherit; cursor: pointer; color-scheme: dark; }
+.date-nav input[type=date], .date-nav select { background: rgba(255,255,255,0.2); color: #fff; border: 1px solid rgba(255,255,255,0.3); padding: 6px 10px; border-radius: 8px; font-size: 0.85rem; font-family: inherit; cursor: pointer; color-scheme: dark; }
+.date-nav select option { color: var(--text); background: #fff; }
 
 /* ===== Attendance Counters ===== */
 .att-counters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
@@ -113,8 +117,8 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
 .search-box input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(14,165,233,0.12); }
 .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
 
-.student-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
-.student-card { background: #fff; border-radius: var(--radius-sm); border: 2px solid var(--border); padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; transition: all 0.2s; cursor: default; box-shadow: var(--shadow-sm); }
+.student-grid { display: grid; grid-template-columns: 1fr; gap: 10px; overflow-x: auto; padding-bottom: 8px;}
+.student-card { background: #fff; border-radius: var(--radius-sm); border: 2px solid var(--border); padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; transition: all 0.2s; cursor: default; box-shadow: var(--shadow-sm); min-width: max-content; }
 .student-card:hover { border-color: var(--primary-light); box-shadow: var(--shadow); }
 .student-card.status-present { border-color: #6ee7b7; background: #f0fdf4; }
 .student-card.status-absent  { border-color: #fca5a5; background: #fff5f5; }
@@ -122,8 +126,12 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
 .student-card.status-sick    { border-color: #f9a8d4; background: #fdf2f8; }
 .student-card.status-late    { border-color: #a5b4fc; background: #f5f3ff; }
 
+.student-card .sticky-name-wrap { position: sticky; left: 0; margin: -14px 0 -14px -16px; padding: 14px 16px; background: inherit; z-index: 5; display: flex; align-items: center; gap: 12px; border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+.cal-stu-row .sticky-name-wrap { position: sticky; left: 0; margin: -10px 0 -10px -16px; padding: 10px 16px; background: inherit; z-index: 5; display: flex; align-items: center; gap: 10px; }
+.sticky-name-wrap::after { content: ''; position: absolute; top: 0; bottom: 0; right: -6px; width: 6px; background: linear-gradient(to right, rgba(0,0,0,0.06), transparent); pointer-events: none; }
+
 .student-num { font-size: 1.1rem; font-weight: 700; color: var(--text-muted); min-width: 28px; }
-.student-name { flex: 1; font-weight: 600; font-size: 0.95rem; color: var(--text); line-height: 1.3; }
+.student-name { flex: 1; font-weight: 600; font-size: 0.95rem; color: var(--text); line-height: 1.3; white-space: nowrap; }
 .student-id-sm { font-size: 0.75rem; color: var(--text-muted); font-weight: 400; }
 
 .status-btns { display: flex; gap: 4px; }
@@ -163,6 +171,9 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
 .report-table .s-ป { color: var(--status-sick-fg);    background: var(--status-sick-bg);    font-weight: 700; border-radius: 4px; }
 .report-table .s-ส { color: var(--status-late-fg);    background: var(--status-late-bg);    font-weight: 700; border-radius: 4px; }
 
+/* Dashboard table fixes */
+#dashTbody td { padding: 12px 10px; vertical-align: middle; }
+
 /* ===================== Calendar ===================== */
 .cal-nav-btn { width:34px;height:34px;border-radius:8px;border:1.5px solid #cbd5e1;background:#fff;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all .15s; }
 .cal-nav-btn:hover { background:#0ea5e9;border-color:#0ea5e9;color:#fff; }
@@ -171,7 +182,7 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
 .cal-grid { display:grid;grid-template-columns:repeat(7,1fr);gap:4px; }
 .cal-day-name { text-align:center;font-size:.75rem;font-weight:700;color:#94a3b8;padding:4px 0; }
 
-.cal-cell { border-radius:10px;border:1.5px solid #e2e8f0;background:#fff;cursor:pointer;transition:all .18s;overflow:hidden;min-height:74px;padding:6px; }
+.cal-cell { border-radius:10px;border:1.5px solid #e2e8f0;background:#fff;cursor:pointer;transition:all .18s;overflow:hidden;min-height:74px;padding:6px; position:relative; }
 .cal-cell:hover { border-color:#0ea5e9;box-shadow:0 2px 10px rgba(14,165,233,.2);transform:translateY(-1px); }
 .cal-cell.empty { border:none;background:transparent;cursor:default;pointer-events:none; }
 .cal-cell.today { border-color:#0ea5e9;background:#f0f9ff; }
@@ -187,31 +198,25 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
 .cal-summary { font-size:.65rem;color:#6b7280;margin-top:4px;line-height:1.4; }
 .cal-no-data { font-size:.65rem;color:#cbd5e1;margin-top:6px; }
 
-/* Calendar Day Modal students */
-.cal-stu-row { display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid #f1f5f9; }
+.cal-stu-row { display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid #f1f5f9; background: #fff; min-width: max-content;}
 .cal-stu-row:last-child { border-bottom:none; }
-.cal-stu-name { flex:1;font-size:.9rem; }
+.cal-stu-name { flex:1;font-size:.9rem; white-space: nowrap; }
 .cal-stu-num { width:28px;text-align:center;font-size:.8rem;color:#9ca3af;flex-shrink:0; }
 
-/* Week summary bar */
 .cal-week-bar { grid-column: span 7; display:flex; align-items:center; justify-content:flex-end; padding:2px 4px 4px; gap:6px; }
 .cal-week-pct { font-size:.72rem; font-weight:700; padding:2px 8px; border-radius:10px; }
 .cal-week-pct.hi  { background:#d1fae5; color:#065f46; }
 .cal-week-pct.mid { background:#fef3c7; color:#92400e; }
 .cal-week-pct.lo  { background:#fee2e2; color:#991b1b; }
 
-/* Student search */
 .cal-student-panel { margin-top:14px; border:1.5px solid #e2e8f0; border-radius:12px; overflow:hidden; display:none; }
 .cal-stu-timeline  { display:flex; gap:3px; flex-wrap:wrap; margin-top:4px; }
 .cal-stu-day-dot   { width:20px; height:20px; border-radius:6px; font-size:.65rem; font-weight:700; display:flex; align-items:center; justify-content:center; cursor:pointer; }
 
-/* Consecutive absence highlight */
 .cal-cell.streak3 { box-shadow: inset 0 0 0 2px #ef4444; }
 
-/* Note badge */
 .cal-note-badge { font-size:.6rem; background:#fef9c3; color:#854d0e; border-radius:6px; padding:1px 5px; margin-top:2px; display:inline-block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
-/* Holiday cells */
 .cal-cell.holiday { background:#f1f5f9;border-color:#cbd5e1;cursor:default; }
 .cal-cell.holiday:hover { transform:none;box-shadow:none;border-color:#cbd5e1; }
 .cal-cell.makeup  { background:#eff6ff;border-color:#93c5fd; }
@@ -220,15 +225,13 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
 .cal-badge.makeup  { background:#dbeafe;color:#1d4ed8; }
 .cal-cell .cal-holiday-btn { opacity:0;position:absolute;top:4px;right:4px;background:none;border:none;cursor:pointer;font-size:.85rem;line-height:1;padding:2px;border-radius:4px;transition:opacity .15s; }
 .cal-cell:hover .cal-holiday-btn { opacity:1; }
-.cal-cell { position:relative; }
 
-/* Month filter buttons */
 .month-btn { padding: 6px 14px; border-radius: 20px; border: 1.5px solid #cbd5e1; background: #fff; color: #374151; font-size: .82rem; font-weight: 600; cursor: pointer; transition: all .15s; font-family: inherit; }
 .month-btn:hover  { border-color: #0ea5e9; color: #0ea5e9; }
 .month-btn.active { background: #0ea5e9; border-color: #0ea5e9; color: #fff; box-shadow: 0 2px 8px rgba(14,165,233,.3); }
 .month-btn.all    { background: #f1f5f9; border-color: #94a3b8; }
 .month-btn.all.active { background: #1e3a5f; border-color: #1e3a5f; color: #fff; }
-/* Report enhancements */
+
 .stat-card { background: white; border-radius: 12px; padding: 16px; box-shadow: var(--shadow); text-align: center; }
 .stat-num  { font-size: 2rem; font-weight: 800; line-height: 1; }
 .stat-label{ font-size: .78rem; color: #6b7280; margin-top: 4px; }
@@ -239,7 +242,6 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
 .report-table .s-- { color: #94a3b8; font-size: 0.75rem; }
 .report-summary { margin-top: 6px; padding: 6px 12px; border-radius: 6px; background: #f1f5f9; font-size: 0.8rem; color: var(--secondary); }
 
-/* ===== Stats Cards ===== */
 .stat-card { background: #fff; border-radius: var(--radius-sm); padding: 18px; border: 1px solid var(--border); box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 14px; }
 .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
 .stat-info h3 { margin: 0; font-size: 1.5rem; font-weight: 700; }
@@ -260,27 +262,16 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
 @keyframes spin { to { transform: rotate(360deg); } }
 .progress-card p { font-weight: 600; color: var(--primary-dark); font-size: 1rem; margin: 0; }
 
-/* ===== Add Student Modal ===== */
+/* ===== Modals & Empty State ===== */
 .modal-content { border-radius: var(--radius); border: none; box-shadow: var(--shadow-lg); }
 .modal-header { border-bottom: 1px solid var(--border); }
 .form-control, .form-select { border-radius: var(--radius-sm); border: 1px solid var(--border); padding: 10px 14px; font-family: inherit; }
 .form-control:focus, .form-select:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(14,165,233,0.12); }
 
-/* ===== Empty State ===== */
 .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
 .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
 .empty-state p { font-size: 0.95rem; }
 
-@media (max-width: 640px) {
-  .att-counter { min-width: 80px; }
-  .student-grid { grid-template-columns: 1fr; }
-  .login-card { padding: 32px 20px; }
-  .app-card { padding: 18px; }
-  .quick-actions { display: grid; grid-template-columns: 1fr 1fr; }
-  .quick-btn { text-align: center; }
-  .date-bar { padding: 12px 16px; }
-}
-  /* ===== Calendar Filters ===== */
 .cal-filter-lbl { 
   display: inline-flex; align-items: center; gap: 6px; cursor: pointer; 
   font-size: .8rem; font-weight: 500; padding: 4px 10px; border-radius: 20px; 
@@ -294,112 +285,30 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
 .cal-filter-lbl:has(input[value="ล"]:checked) { border-color: #f59e0b; }
 .cal-filter-lbl:has(input[value="ป"]:checked) { border-color: #be185d; }
 .cal-filter-lbl:has(input[value="ส"]:checked) { border-color: #818cf8; }
-.cal-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
 
-/* ===== Timeline Print Button ===== */
 .btn-print-warn {
   font-size: .75rem; background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5;
   padding: 2px 8px; border-radius: 12px; cursor: pointer; transition: all 0.2s;
 }
 .btn-print-warn:hover { background: #fca5a5; color: #fff; }
- /* ===== ตรึงรายชื่อเมื่อเลื่อนแนวนอนในมือถือ (อัปเดต) ===== */
-.student-grid, #calDayStudents { 
-  overflow-x: auto; 
-  padding-bottom: 8px; /* เพิ่มพื้นที่ให้ Scrollbar ปัดง่ายขึ้น */
-}
 
-/* บังคับไม่ให้การ์ดหดตัวจนชื่อถูกบีบตกบรรทัด */
-.student-card { 
-  min-width: max-content; 
-}
-.cal-stu-row { 
-  background: #fff; 
-  min-width: max-content; 
-}
-
-/* บังคับชื่อนักเรียนไม่ให้ตัดขึ้นบรรทัดใหม่ */
-.student-name, .cal-stu-name {
-  white-space: nowrap;
-}
-
-/* ตั้งค่ากล่องรายชื่อให้ล็อคซ้ายสุดและดึงขอบมาทับ Padding ของการ์ด */
-.student-card .sticky-name-wrap {
-  position: sticky;
-  left: 0;
-  margin: -14px 0 -14px -16px; /* ดึงให้ชิดขอบซ้ายสุดของการ์ด */
-  padding: 14px 16px;          /* ใส่ระยะห่างกลับคืนให้สวยเหมือนเดิม */
-  background: inherit;         /* สีพื้นหลังเปลี่ยนตามสถานะ มา/ขาด/ลา/สาย */
-  z-index: 5;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
-}
-
-.cal-stu-row .sticky-name-wrap {
-  position: sticky;
-  left: 0;
-  margin: -10px 0 -10px -16px;
-  padding: 10px 16px;
-  background: inherit;
-  z-index: 5;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-/* ใส่เงาขอบขวาให้ดูมีมิติตอนเลื่อนปุ่มลอดใต้ชื่อ */
-.sticky-name-wrap::after {
-  content: '';
-  position: absolute;
-  top: 0; bottom: 0; right: -6px;
-  width: 6px;
-  background: linear-gradient(to right, rgba(0,0,0,0.06), transparent);
-  pointer-events: none;
-}
-  /* ===== ปรับปรุง Navbar สำหรับมือถือ (Mobile Header Fix) ===== */
-
-/* 1. ห้ามข้อความในปุ่มและป้ายชื่อตกบรรทัดเด็ดขาด และห้ามโดนบีบ */
-.nav-btn, .teacher-badge {
-  white-space: nowrap;
-  flex-shrink: 0; 
-}
-
-/* 2. จัดระเบียบโครงสร้างเมื่ออยู่บนหน้าจอมือถือ */
+/* Mobile Navbar Fixes */
+.nav-btn, .teacher-badge { white-space: nowrap; flex-shrink: 0; }
 @media (max-width: 640px) {
-  .app-nav {
-    padding: 10px 0 6px 0;
-  }
-  .app-nav .container {
-    flex-wrap: wrap; /* อนุญาตให้กลุ่มปุ่มตกลงมาอยู่บรรทัดที่ 2 */
-    gap: 8px;
-  }
-  .brand {
-    width: 100%; /* ให้โลโก้จองพื้นที่บรรทัดบนสุด */
-  }
+  .app-nav { padding: 10px 0 6px 0; }
+  .app-nav .container { flex-wrap: wrap; gap: 8px; }
+  .brand { width: 100%; }
+  .nav-info { width: 100%; overflow-x: auto; justify-content: flex-start; padding-bottom: 6px; -webkit-overflow-scrolling: touch; }
+  .nav-info::-webkit-scrollbar { display: none; }
+  .nav-btn { padding: 6px 12px; font-size: 0.8rem; }
+  .teacher-badge { padding: 5px 12px; }
   
-  /* สร้างเมนูแบบปัดเลื่อนแนวนอน (Swipeable Menu) */
-  .nav-info {
-    width: 100%;
-    overflow-x: auto; /* เปิดให้ใช้นิ้วปัดซ้ายขวาได้ */
-    justify-content: flex-start;
-    padding-bottom: 6px; /* เผื่อพื้นที่นิดหน่อยไม่ให้ดูอึดอัด */
-    -webkit-overflow-scrolling: touch; /* เลื่อนลื่นๆ บนมือถือ */
-  }
-  
-  /* ซ่อนแถบ Scrollbar แนวนอนให้ดูสะอาดตาเหมือนแอปจริง */
-  .nav-info::-webkit-scrollbar {
-    display: none; 
-  }
-  
-  /* ปรับขนาดปุ่มให้กะทัดรัดขึ้นนิดหน่อยบนมือถือ */
-  .nav-btn {
-    padding: 6px 12px;
-    font-size: 0.8rem;
-  }
-  .teacher-badge {
-    padding: 5px 12px;
-  }
+  .att-counter { min-width: 80px; }
+  .login-card { padding: 32px 20px; }
+  .app-card { padding: 18px; }
+  .quick-actions { display: grid; grid-template-columns: 1fr 1fr; }
+  .quick-btn { text-align: center; }
+  .date-bar { padding: 12px 16px; }
 }
 </style>
 </head>
@@ -408,17 +317,23 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
 <!-- Navbar -->
 <div class="app-nav">
   <div class="container">
-    <a class="brand" href="#" onclick="return false;">
+    <a class="brand" href="#" onclick="if(currentUser) showPage('checkPage'); return false;">
       <div class="brand-logo">14</div>
-      <span class="d-none d-sm-inline">โรงเรียนบ้านคลอง 14</span>
+      <span class="d-none d-sm-inline" id="navSchoolName">โรงเรียนบ้านคลอง 14</span>
     </a>
     <div class="nav-info">
       <div class="teacher-badge" id="teacherBadge">🎓 ครูสมศรี • ป.3</div>
+      
+      <!-- เมนูหลังจากล็อกอิน -->
+      <button class="nav-btn" id="btnNavDash" onclick="openDashboard()"       style="display:none;">📊 สถิติภาพรวม</button>
       <button class="nav-btn" id="btnNav1" onclick="showPage('checkPage')"    style="display:none;">✅ เช็คชื่อ</button>
       <button class="nav-btn" id="btnNav3" onclick="openCalendarPage()"       style="display:none;">📅 ปฏิทิน</button>
       <button class="nav-btn" id="btnNav2" onclick="showPage('reportPage')"   style="display:none;">📊 รายงาน</button>
-      <button class="nav-btn" id="btnNavConfig" onclick="openConfigModal()" style="display:none;" title="ตั้งค่าปีการศึกษา">⚙️</button>
-      <button class="nav-btn danger" id="btnLogout" onclick="logout()" style="display:none;">ออกจากระบบ</button>
+      <button class="nav-btn" id="btnNavConfig" onclick="openConfigModal()"   style="display:none;" title="ตั้งค่าปีการศึกษา">⚙️</button>
+      <button class="nav-btn danger" id="btnLogout" onclick="logout()"        style="display:none;">ออกจากระบบ</button>
+      
+      <!-- ปุ่มสำหรับกลับไปหน้า Login เวลาอยู่หน้า Dashboard (ถ้ายังไม่ล็อกอิน) -->
+      <button class="nav-btn" id="btnNavLogin" onclick="goBackToLogin()" style="display:none; background:var(--primary); color:#fff; border-color:var(--primary);">🔑 ล็อกอินครู</button>
     </div>
   </div>
 </div>
@@ -427,14 +342,14 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
 <div class="toast-wrap" id="toastWrap"></div>
 
 <!-- Progress Overlay -->
-<div id="progressOverlay" style="display:none; display:none; align-items:center; justify-content:center; position:fixed; inset:0; background:rgba(255,255,255,0.85); backdrop-filter:blur(4px); z-index:9998;">
+<div id="progressOverlay" style="display:none; align-items:center; justify-content:center; position:fixed; inset:0; background:rgba(255,255,255,0.85); backdrop-filter:blur(4px); z-index:9998;">
   <div class="progress-card">
     <div class="spinner"></div>
     <p id="progressText">กำลังโหลด...</p>
   </div>
 </div>
 
-<!-- ======= Login Page ======= -->
+<!-- ======= Login Page (หน้าแรกสุด) ======= -->
 <div id="loginPage" class="page-section active">
   <div class="login-wrap">
     <div class="login-card">
@@ -446,8 +361,77 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
         <label class="form-label fw-semibold" style="font-size:.9rem;">รหัสผ่าน</label>
         <input type="password" class="form-control form-control-lg text-center" id="loginPass" placeholder="••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin()">
       </div>
+      
+      <!-- ปุ่มเข้าสู่ระบบ -->
       <button class="btn-login" onclick="doLogin()">เข้าสู่ระบบ</button>
+      
+      <!-- ปุ่มสถิติประจำวัน (Dashboard) ที่คุณต้องการให้อยู่ใต้ปุ่มเข้าสู่ระบบ -->
+      <button class="btn-dashboard" onclick="openDashboard()">📊 สถิติประจำวัน</button>
+      
       <p class="text-muted mt-4 mb-0" style="font-size:.8rem;">ปีการศึกษา: <span id="loginYear" class="fw-bold text-dark">...</span></p>
+    </div>
+  </div>
+</div>
+
+<!-- ======= Public Dashboard Page (หน้าสถิติใหม่) ======= -->
+<div id="dashboardPage" class="page-section">
+  <div class="container-main">
+    <div class="app-card">
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div class="card-title mb-0">📊 สถิติการมาเรียน (ภาพรวมโรงเรียน)</div>
+      </div>
+
+      <!-- Dashboard Date Bar -->
+      <div class="date-bar" style="background: linear-gradient(135deg, #1e3a5f, #3b82f6);">
+        <div>
+          <div class="date-txt" id="dashDateDisplay">กำลังโหลด...</div>
+          <div class="class-txt">ปีการศึกษา <span id="dashYearDisplay">...</span></div>
+        </div>
+        <div class="date-nav">
+          <select id="dashMode" onchange="loadDashboard()" style="color:#333; background:#fff; font-weight:bold;">
+            <option value="daily">ดูแบบรายวัน</option>
+            <option value="monthly">ดูแบบรายเดือน</option>
+          </select>
+          <input type="date" id="dashDatePicker" onchange="onDashDatePicked(this.value)">
+          <select id="dashMonthPicker" onchange="loadDashboard()" style="display:none; color:#333; background:#fff; font-weight:bold;">
+            <option value="01">มกราคม</option>
+            <option value="02">กุมภาพันธ์</option>
+            <option value="03">มีนาคม</option>
+            <option value="04">เมษายน</option>
+            <option value="05">พฤษภาคม</option>
+            <option value="06">มิถุนายน</option>
+            <option value="07">กรกฎาคม</option>
+            <option value="08">สิงหาคม</option>
+            <option value="09">กันยายน</option>
+            <option value="10">ตุลาคม</option>
+            <option value="11">พฤศจิกายน</option>
+            <option value="12">ธันวาคม</option>
+          </select>
+          <button class="nav-btn" style="color:#333;" onclick="printDashboard()">🖨️ พิมพ์รายงาน</button>
+        </div>
+      </div>
+
+      <!-- Dashboard Table -->
+      <div class="report-table-wrap">
+        <table class="report-table">
+          <thead>
+            <tr>
+              <th style="background:#1e3a5f; width:120px;">ระดับชั้น</th>
+              <th style="background:#374151;" id="dashColTotal">นักเรียนทั้งหมด</th>
+              <th style="background:#065f46;">มา</th>
+              <th style="background:#991b1b;">ขาด</th>
+              <th style="background:#92400e;">ลา/ป่วย</th>
+              <th style="background:#3730a3;">สาย</th>
+              <th style="background:#1e3a5f;">% มาเรียน</th>
+            </tr>
+          </thead>
+          <tbody id="dashTbody">
+            <tr><td colspan="7" class="text-center py-5 text-muted">กำลังโหลดข้อมูล...</td></tr>
+          </tbody>
+          <tfoot id="dashTfoot" style="background:#f1f5f9;">
+          </tfoot>
+        </table>
+      </div>
     </div>
   </div>
 </div>
@@ -706,7 +690,7 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
         <!-- Save bar -->
         <div class="d-flex justify-content-between align-items-center p-3 border-top" style="background:#f8fafc;">
           <span id="calDayChecked" style="font-size:.85rem;color:#6b7280;"></span>
-          <button class="btn-save-big" onclick="calSaveDay()" style="min-width:140px;">💾 บันทึก</button>
+          <button class="btn-save" onclick="calSaveDay()" style="min-width:140px;">💾 บันทึก</button>
         </div>
       </div>
     </div>
@@ -784,6 +768,10 @@ let students =[];
 let attendance = {};           
 let reportData = null;
 
+// Dashboard State
+let dashData =[];
+let dashDate = todayStr();
+
 // =============================================
 // Utilities
 // =============================================
@@ -839,6 +827,250 @@ function showPage(page) {
 }
 
 // =============================================
+// Init (Load Page Default is Login)
+// =============================================
+window.addEventListener('DOMContentLoaded', async () => {
+  // Setup default pickers
+  document.getElementById('dashMonthPicker').value = pad(new Date().getMonth() + 1);
+  document.getElementById('dashDatePicker').value = dateToInput(todayStr());
+
+  showProgress('กำลังโหลดระบบ...');
+  try {
+    const cfg = await api('getConfig');
+    currentYear = cfg.active_year || '';
+    const schoolName = cfg.school_name || 'โรงเรียนบ้านคลอง 14';
+    document.getElementById('loginYear').textContent = currentYear;
+    document.getElementById('dashYearDisplay').textContent = currentYear;
+    document.getElementById('loginSchoolName').textContent = schoolName;
+    document.getElementById('navSchoolName').textContent = schoolName;
+  } catch(e) {}
+  hideProgress();
+});
+
+// =============================================
+// Login / Navigation Logic
+// =============================================
+async function doLogin() {
+  const pw = document.getElementById('loginPass').value.trim();
+  if (!pw) { showToast('กรุณากรอกรหัสผ่าน','error'); return; }
+  showProgress('กำลังตรวจสอบ...');
+  try {
+    currentUser = await api('login', { password: pw });
+    afterLogin();
+  } catch(e) {
+    hideProgress();
+    showToast(e.message,'error');
+  }
+}
+
+function afterLogin() {
+  // Update UI Elements
+  document.getElementById('teacherBadge').textContent = `🎓 ${currentUser.name} • ${currentUser.isAdmin ? 'ผู้บริหาร' : currentUser.classroom}`;
+  document.getElementById('teacherBadge').style.display = 'inline-flex';
+  
+  ['btnNavDash','btnNav1','btnNav2','btnNav3','btnLogout'].forEach(id => document.getElementById(id).style.display='inline-block');
+  document.getElementById('btnNavConfig').style.display = currentUser.isAdmin ? 'inline-block' : 'none';
+  document.getElementById('btnNavLogin').style.display = 'none';
+
+  setupReportClassroomSelect();
+
+  showPage('checkPage');
+  updateDateDisplay();
+
+  if (!currentYear) {
+    if (currentUser.isAdmin) {
+      showToast('กรุณาตั้งค่าปีการศึกษาก่อนใช้งาน', 'error');
+      setTimeout(() => openConfigModal(), 600);
+    } else {
+      showToast('ยังไม่มีปีการศึกษา กรุณาแจ้งผู้บริหารตั้งค่าระบบก่อน', 'error');
+    }
+    hideProgress();
+    return;
+  }
+
+  loadAttendance();
+  hideProgress();
+}
+
+function logout() {
+  currentUser = null; students =[]; attendance = {};
+  const safe = (id, fn) => { const el = document.getElementById(id); if (el) fn(el); };
+  safe('teacherBadge', el => el.style.display='none');['btnNavDash','btnNav1','btnNav2','btnNav3','btnLogout','btnNavConfig','btnNavLogin'].forEach(id => safe(id, el => el.style.display='none'));
+  safe('loginPass', el => { el.value=''; });
+  showPage('loginPage');
+  showToast('ออกจากระบบแล้ว','info');
+}
+
+function goBackToLogin() {
+  document.getElementById('btnNavLogin').style.display = 'none';
+  showPage('loginPage');
+}
+
+// =============================================
+// Dashboard View (Publicly Accessible)
+// =============================================
+function openDashboard() {
+  showPage('dashboardPage');
+  // หากยังไม่ได้ล็อกอิน ให้โชว์ปุ่ม 'ล็อกอินครู' บน Navbar
+  if (!currentUser) {
+    document.getElementById('btnNavLogin').style.display = 'inline-block';
+  }
+  loadDashboard();
+}
+
+function onDashDatePicked(val) {
+  dashDate = inputToThai(val);
+  loadDashboard();
+}
+
+async function loadDashboard() {
+  if (!currentYear) {
+    showToast('กรุณาโหลดระบบก่อน หรือไม่มีข้อมูลปีการศึกษา', 'error');
+    return;
+  }
+  const mode = document.getElementById('dashMode').value;
+  const monthPicker = document.getElementById('dashMonthPicker');
+  const datePicker = document.getElementById('dashDatePicker');
+  const colTotal = document.getElementById('dashColTotal');
+
+  if(mode === 'daily') {
+    monthPicker.style.display = 'none';
+    datePicker.style.display = 'inline-block';
+    document.getElementById('dashDateDisplay').textContent = thaiDateFull(dashDate);
+    colTotal.textContent = "นักเรียนทั้งหมด";
+  } else {
+    monthPicker.style.display = 'inline-block';
+    datePicker.style.display = 'none';
+    const mm = monthPicker.value;
+    const THAI_M =['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+    document.getElementById('dashDateDisplay').textContent = `สรุปเดือน ${THAI_M[parseInt(mm)]}`;
+    colTotal.textContent = "จำนวน นร. × วันเรียน";
+  }
+
+  showProgress('กำลังดึงสถิติ...');
+  try {
+    const req = { year: currentYear, mode: mode, date: dashDate, month: monthPicker.value };
+    dashData = await api('getDashboardStats', req);
+    renderDashboard();
+  } catch(e) {
+    showToast('โหลดสถิติไม่สำเร็จ: ' + e.message, 'error');
+  }
+  hideProgress();
+}
+
+function renderDashboard() {
+  const tbody = document.getElementById('dashTbody');
+  const tfoot = document.getElementById('dashTfoot');
+  let html = '';
+  let sumTotal=0, sumP=0, sumA=0, sumL=0, sumLa=0;
+
+  dashData.forEach(d => {
+    const total = d.total || 0;
+    const p = d.p||0, a = d.a||0, l = d.l||0, la = d.la||0;
+    sumTotal += total; sumP += p; sumA += a; sumL += l; sumLa += la;
+
+    const pct = total ? Math.round((p / total) * 100) : 0;
+    const pctColor = pct < 80 ? 'color:var(--danger);' : 'color:var(--success);';
+
+    html += `<tr>
+      <td class="text-start fw-bold" style="background:#f8fafc; border-right:2px solid #e2e8f0;">${d.class}</td>
+      <td class="text-center fw-semibold text-primary">${total}</td>
+      <td class="text-center text-success fw-bold">${p}</td>
+      <td class="text-center text-danger fw-bold">${a}</td>
+      <td class="text-center fw-bold" style="color:#92400e !important;">${l}</td>
+      <td class="text-center text-info fw-bold">${la}</td>
+      <td class="text-center fw-bold" style="${pctColor}">${pct}%</td>
+    </tr>`;
+  });
+
+  if (dashData.length === 0) {
+    html = `<tr><td colspan="7" class="text-center py-5 text-muted">ไม่พบข้อมูลของปีการศึกษา ${currentYear}</td></tr>`;
+  }
+  tbody.innerHTML = html;
+
+  const sumPct = sumTotal ? Math.round((sumP / sumTotal) * 100) : 0;
+  const sumPctColor = sumPct < 80 ? 'color:var(--danger);' : 'color:var(--success);';
+
+  tfoot.innerHTML = `<tr>
+    <td class="text-start fw-bold" style="border-right:2px solid #cbd5e1;">รวมทั้งหมด</td>
+    <td class="text-center fw-bold text-primary">${sumTotal}</td>
+    <td class="text-center fw-bold text-success">${sumP}</td>
+    <td class="text-center fw-bold text-danger">${sumA}</td>
+    <td class="text-center fw-bold" style="color:#92400e;">${sumL}</td>
+    <td class="text-center fw-bold text-info">${sumLa}</td>
+    <td class="text-center fw-bold" style="${sumPctColor}">${sumPct}%</td>
+  </tr>`;
+}
+
+function printDashboard() {
+  if (!dashData || dashData.length === 0) { showToast('ไม่มีข้อมูลให้พิมพ์', 'error'); return; }
+  const mode = document.getElementById('dashMode').value;
+  const school = document.getElementById('navSchoolName')?.textContent || 'โรงเรียนบ้านคลอง 14';
+  const printDate = new Date().toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
+
+  let titleStr = '';
+  if (mode === 'daily') {
+    titleStr = 'ประจำ' + thaiDateFull(dashDate);
+  } else {
+    const mm = document.getElementById('dashMonthPicker').value;
+    const THAI_M =['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+    titleStr = `สรุปเดือน ${THAI_M[parseInt(mm)]} ${currentYear.split('/')[1]}`;
+  }
+
+  let sumTotal=0, sumP=0, sumA=0, sumL=0, sumLa=0;
+  const rowsHtml = dashData.map(d => {
+    const total = d.total || 0;
+    const p = d.p||0, a = d.a||0, l = d.l||0, la = d.la||0;
+    sumTotal += total; sumP += p; sumA += a; sumL += l; sumLa += la;
+    const pct = total ? Math.round((p / total) * 100) : 0;
+    return `<tr>
+      <td style="text-align:center; font-weight:bold; font-size:12px;">${d.class}</td>
+      <td style="text-align:center;">${total}</td>
+      <td style="text-align:center; color:#065f46; font-weight:bold;">${p}</td>
+      <td style="text-align:center; color:#991b1b; font-weight:bold;">${a}</td>
+      <td style="text-align:center; color:#92400e; font-weight:bold;">${l}</td>
+      <td style="text-align:center; color:#3730a3; font-weight:bold;">${la}</td>
+      <td style="text-align:center; font-weight:bold; color:${pct<80?'#991b1b':'#065f46'};">${pct}%</td>
+    </tr>`;
+  }).join('');
+
+  const sumPct = sumTotal ? Math.round((sumP / sumTotal) * 100) : 0;
+
+  const tableHead = `<tr>
+    <th style="background:#1e3a5f;color:#fff;">ระดับชั้น</th>
+    <th style="background:#374151;color:#fff;">${mode==='monthly'?'นร.ทั้งหมด × วันเรียน':'นักเรียนทั้งหมด'}</th>
+    <th style="background:#065f46;color:#fff;">มา</th>
+    <th style="background:#991b1b;color:#fff;">ขาด</th>
+    <th style="background:#92400e;color:#fff;">ลา/ป่วย</th>
+    <th style="background:#3730a3;color:#fff;">สาย</th>
+    <th style="background:#1e3a5f;color:#fff;">% มาเรียน</th>
+  </tr>`;
+
+  const tableBody = rowsHtml + `<tr style="background:#f1f5f9; font-weight:bold; font-size:12px;">
+    <td style="text-align:center;">รวมทั้งหมด</td>
+    <td style="text-align:center;">${sumTotal}</td>
+    <td style="text-align:center; color:#065f46;">${sumP}</td>
+    <td style="text-align:center; color:#991b1b;">${sumA}</td>
+    <td style="text-align:center; color:#92400e;">${sumL}</td>
+    <td style="text-align:center; color:#3730a3;">${sumLa}</td>
+    <td style="text-align:center; color:${sumPct<80?'#991b1b':'#065f46'};">${sumPct}%</td>
+  </tr>`;
+
+  const html = buildPrintPage({
+    school, cls: 'ทุกระดับชั้น', currentYear, printDate, threshold: 3,
+    title: `สถิติการมาเรียน ภาพรวมโรงเรียน`,
+    subTitle: `${titleStr} | ปีการศึกษา ${currentYear}`,
+    orientation: 'portrait',
+    tableHead: tableHead,
+    tableBody: tableBody,
+    summary: `ข้อมูล ณ วันที่พิมพ์ : ${printDate}`,
+    alertNote: mode==='monthly' ? '* หมายเหตุ: คอลัมน์ที่ 2 (นร.ทั้งหมด × วันเรียน) คือการนับรวมจำนวนสิทธิ์การเข้าเรียนทั้งหมดของระดับชั้นในเดือนนั้น' : ''
+  });
+  openPrint(html);
+}
+
+
+// =============================================
 // Config (Admin only)
 // =============================================
 function openConfigModal() {
@@ -865,70 +1097,6 @@ async function saveConfig() {
     showToast(e.message, 'error');
   }
   hideProgress();
-}
-
-// =============================================
-// Init
-// =============================================
-window.addEventListener('DOMContentLoaded', async () => {
-  showProgress('กำลังโหลดระบบ...');
-  try {
-    const cfg = await api('getConfig');
-    currentYear = cfg.active_year || '';
-    document.getElementById('loginYear').textContent = currentYear;
-    document.getElementById('loginSchoolName').textContent = cfg.school_name || 'โรงเรียนบ้านคลอง 14';
-  } catch(e) {}
-  hideProgress();
-});
-
-// =============================================
-// Login
-// =============================================
-async function doLogin() {
-  const pw = document.getElementById('loginPass').value.trim();
-  if (!pw) { showToast('กรุณากรอกรหัสผ่าน','error'); return; }
-  showProgress('กำลังตรวจสอบ...');
-  try {
-    currentUser = await api('login', { password: pw });
-    afterLogin();
-  } catch(e) {
-    hideProgress();
-    showToast(e.message,'error');
-  }
-}
-
-function afterLogin() {
-  document.getElementById('teacherBadge').textContent = `🎓 ${currentUser.name} • ${currentUser.isAdmin ? 'ผู้บริหาร' : currentUser.classroom}`;
-  document.getElementById('teacherBadge').style.display = 'inline-flex';['btnNav1','btnNav2','btnNav3','btnLogout'].forEach(id => document.getElementById(id).style.display='inline-block');
-  document.getElementById('btnNavConfig').style.display = currentUser.isAdmin ? 'inline-block' : 'none';
-
-  setupReportClassroomSelect();
-
-  showPage('checkPage');
-  updateDateDisplay();
-
-  if (!currentYear) {
-    if (currentUser.isAdmin) {
-      showToast('กรุณาตั้งค่าปีการศึกษาก่อนใช้งาน', 'error');
-      setTimeout(() => openConfigModal(), 600);
-    } else {
-      showToast('ยังไม่มีปีการศึกษา กรุณาแจ้งผู้บริหารตั้งค่าระบบก่อน', 'error');
-    }
-    hideProgress();
-    return;
-  }
-
-  loadAttendance();
-  hideProgress();
-}
-
-function logout() {
-  currentUser = null; students =[]; attendance = {};
-  const safe = (id, fn) => { const el = document.getElementById(id); if (el) fn(el); };
-  safe('teacherBadge', el => el.style.display='none');['btnNav1','btnNav2','btnNav3','btnLogout','btnNavConfig'].forEach(id => safe(id, el => el.style.display='none'));
-  safe('loginPass', el => { el.value=''; el.focus(); });
-  showPage('loginPage');
-  showToast('ออกจากระบบแล้ว','info');
 }
 
 // =============================================
@@ -1625,7 +1793,7 @@ function buildPrintPage({school,cls,currentYear,printDate,title,subTitle,orienta
   <div class="print-summary">${summary}</div>
   ${alertNote ? `<div class="print-alert">${alertNote}</div>` : ''}
   <div class="sign-row">
-    <div class="sign-box"><div class="sign-line"></div>ครูผู้สอน</div>
+    <div class="sign-box"><div class="sign-line"></div>ครูผู้สอน / ผู้รายงาน</div>
     <div class="sign-box"><div class="sign-line"></div>หัวหน้าฝ่ายวิชาการ</div>
     <div class="sign-box"><div class="sign-line"></div>ผู้อำนวยการโรงเรียน</div>
   </div>
@@ -1730,7 +1898,7 @@ function printCalMonth() {
   const school   = document.getElementById('loginSchoolName')?.textContent || 'โรงเรียนบ้านคลอง 14';
   const printDate= new Date().toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
   const THAI_M   =['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
-  const DOW_TH   = ['อา','จ','อ','พ','พฤ','ศ','ส'];
+  const DOW_TH   =['อา','จ','อ','พ','พฤ','ศ','ส'];
 
   const daysInMonth = new Date(calYear-543, calMonth, 0).getDate();
   const schoolDates =[];
@@ -1834,7 +2002,7 @@ function printCalMonth() {
   </div>
   ${holList?`<div class="hol-note">🚫 วันหยุด: ${holList}</div>`:''}
   <div class="sign-row">
-    <div class="sign-box"><div class="sign-line"></div>ครูผู้สอน</div>
+    <div class="sign-box"><div class="sign-line"></div>ครูผู้สอน / ครูประจำชั้น</div>
     <div class="sign-box"><div class="sign-line"></div>หัวหน้าฝ่ายวิชาการ</div>
     <div class="sign-box"><div class="sign-line"></div>ผู้อำนวยการโรงเรียน</div>
   </div>
@@ -2042,15 +2210,8 @@ function printCalStudent() {
   openPrint(html);
 }
 
-function openPrint(html) {
-  const w = window.open('','_blank');
-  if (!w) { showToast('กรุณาอนุญาต Popup ในเบราว์เซอร์','error'); return; }
-  w.document.write(html);
-  w.document.close();
-}
-
 // =============================================
-// Calendar Page
+// Calendar Page logic
 // =============================================
 let calYear  = 0;
 let calMonth = 0;
@@ -2066,7 +2227,7 @@ let calDayNotes    = {};
 
 const THAI_MONTHS_CAL =['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
                           'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
-const DAY_NAMES = ['อา','จ','อ','พ','พฤ','ศ','ส'];
+const DAY_NAMES =['อา','จ','อ','พ','พฤ','ศ','ส'];
 
 function openCalendarPage() {
   const now = new Date();
