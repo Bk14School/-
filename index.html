@@ -3543,7 +3543,6 @@ async function printMonthlyHomeroomReport(month) {
       </tr>`;
     });
 
-
      const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>สมุดโฮมรูม ${THAI_MONTH_NAME}</title>
     <style>@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap');
     @page{size:A4 landscape; margin:15mm;} body{font-family:'Sarabun',sans-serif; font-size:13px;}
@@ -3552,7 +3551,6 @@ async function printMonthlyHomeroomReport(month) {
       <div class="head">
         <h2>บันทึกการจัดกิจกรรมโฮมรูม (Homeroom) รายเดือน</h2>
         <h3>${school}</h3>
-        <!-- ⭐️ ตรงนี้คือส่วนที่เพิ่มชื่อเดือนลงไปครับ -->
         <p><b>ชั้นเรียน:</b> ${currentUser.classroom} &nbsp;|&nbsp; <b>เดือน:</b> ${THAI_MONTH_NAME} ${currentYear.split('/')[1]} &nbsp;|&nbsp; <b>ครู:</b> ${currentUser.name}</p>
       </div>
       <table>
@@ -3565,6 +3563,7 @@ async function printMonthlyHomeroomReport(month) {
         <div>ลงชื่อ.......................................................ผู้อำนวยการ</div>
       </div><script>window.onload=()=>window.print();<\/script></body></html>`;
     openPrint(html);
+    
   } catch(e) { showToast(e.message, 'error'); }
   hideProgress();
 }
