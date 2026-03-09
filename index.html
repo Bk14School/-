@@ -3544,7 +3544,7 @@ async function printMonthlyHomeroomReport(month) {
     });
 
 
-    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>สมุดโฮมรูม ${THAI_M[parseInt(month)]}</title>
+     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>สมุดโฮมรูม ${THAI_MONTH_NAME}</title>
     <style>@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap');
     @page{size:A4 landscape; margin:15mm;} body{font-family:'Sarabun',sans-serif; font-size:13px;}
     table{width:100%; border-collapse:collapse; margin-top:10px;} th,td{border:1px solid #000; padding:6px; vertical-align:top;}
@@ -3552,7 +3552,8 @@ async function printMonthlyHomeroomReport(month) {
       <div class="head">
         <h2>บันทึกการจัดกิจกรรมโฮมรูม (Homeroom) รายเดือน</h2>
         <h3>${school}</h3>
-        <p><b>ชั้นเรียน:</b> ${currentUser.classroom} &nbsp;|&nbsp; <b>เดือน:</b> ${THAI_M[parseInt(month)]} &nbsp;|&nbsp; <b>ครู:</b> ${currentUser.name}</p>
+        <!-- ⭐️ ตรงนี้คือส่วนที่เพิ่มชื่อเดือนลงไปครับ -->
+        <p><b>ชั้นเรียน:</b> ${currentUser.classroom} &nbsp;|&nbsp; <b>เดือน:</b> ${THAI_MONTH_NAME} ${currentYear.split('/')[1]} &nbsp;|&nbsp; <b>ครู:</b> ${currentUser.name}</p>
       </div>
       <table>
         <thead><tr><th width="40">ที่</th><th width="60">ว/ด/ป</th><th width="300">หัวข้อที่อบรม</th><th width="200">นักเรียนที่ ข/ล/ป</th><th width="200">หมายเหตุ</th><th width="80">ลายมือชื่อ</th></tr></thead>
