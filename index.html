@@ -3501,6 +3501,7 @@ async function printDailyHomeroomReport() {
 }
 
 // 6. พิมพ์รายเดือน (ดึงข้อมูลทั้งเดือนจากไฟล์เทอม)
+// 6. พิมพ์รายเดือน (ดึงข้อมูลทั้งเดือนจากไฟล์เทอม)
 async function printMonthlyHomeroomReport(month) {
   showProgress('กำลังดึงข้อมูลทั้งเดือน...');
   try {
@@ -3513,8 +3514,14 @@ async function printMonthlyHomeroomReport(month) {
 
     if(reportData.dates.length === 0) { showToast('เดือนนี้ยังไม่มีการเช็คชื่อ', 'error'); hideProgress(); return; }
 
+    // ⭐️ เพิ่มการเรียงลำดับวันที่ตรงนี้
+    const sortedDates = reportData.dates.sort((a, b) => {
+        return parseInt(a.split('/')[0]) - parseInt(b.split('/')[0]);
+    });
+
     let rows = '';
-    reportData.dates.forEach((dateStr, idx) => {
+    // ⭐️ เปลี่ยนจาก reportData.dates.forEach เป็น sortedDates.forEach
+    sortedDates.forEach((dateStr, idx) => {
       let abs = [];
       reportData.students.forEach(s => {
         const st = reportData.attendance[s.studentId][dateStr];
@@ -3535,6 +3542,7 @@ async function printMonthlyHomeroomReport(month) {
         <td></td>
       </tr>`;
     });
+
 
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>สมุดโฮมรูม ${THAI_M[parseInt(month)]}</title>
     <style>@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap');
