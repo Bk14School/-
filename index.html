@@ -568,10 +568,10 @@ function afterLogin() {
 
 function logout() {
   currentUser = null; students = []; attendance = {};
-  document.getElementById('teacherBadge').style.display='none';
-  ['btnNav1','btnNav2','btnLogout','btnNavConfig'].forEach(id => document.getElementById(id).style.display='none');
-  document.getElementById('loginId').value='';
-  document.getElementById('loginPass').value='';
+  const safe = (id, fn) => { const el = document.getElementById(id); if (el) fn(el); };
+  safe('teacherBadge', el => el.style.display='none');
+  ['btnNav1','btnNav2','btnLogout','btnNavConfig'].forEach(id => safe(id, el => el.style.display='none'));
+  safe('loginPass', el => { el.value=''; el.focus(); });
   showPage('loginPage');
   showToast('ออกจากระบบแล้ว','info');
 }
