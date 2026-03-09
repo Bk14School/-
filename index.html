@@ -853,14 +853,44 @@ window.addEventListener('DOMContentLoaded', async () => {
 async function doLogin() {
   const pw = document.getElementById('loginPass').value.trim();
   if (!pw) { showToast('กรุณากรอกรหัสผ่าน','error'); return; }
-  showProgress('กำลังตรวจสอบ...');
+  
+  // 1. โชว์สถานะโหลดตอนเริ่มกดปุ่ม
+  showProgress('กำลังเข้าสู่ระบบ...');
+  
   try {
     currentUser = await api('login', { password: pw });
-    afterLogin();
+    await afterLogin(); // ใส่ await เพื่อรอให้ทำงานด้านล่างเสร็จทั้งหมด
   } catch(e) {
     hideProgress();
     showToast(e.message,'error');
   }
+}
+
+async function afterLogin() {
+  // Update UI Elements
+  document.getElementById('teacherBadge').textContent = `🎓 ${currentUser.name} • ${currentUser.isAdmin ? 'ผู้บริหาร' : currentUser.classroom}`;
+  document.getElementById('teacherBadge').style.display = 'inline-flex';['btnNavDash','btnNav1','btnNav2','btnNav3','btnLogout'].forEach(id => document.getElementById(id).style.display='inline-block');
+  document.getElementById('btnNavConfig').style.display = currentUser.isAdmin ? 'inline-block' : 'none';
+  document.getElementById('btnNavLogin').style.display = 'none';
+
+  setupReportClassroomSelect();
+  showPage('checkPage');
+  updateDateDisplay();
+
+  if (!currentYear) {
+    if (currentUser.isAdmin) {
+      showToast('กรุณาตั้งค่าปีการศึกษาก่อนใช้งาน', 'error');
+      setTimeout(() => openConfigModal(), 600);
+    } else {
+      showToast('ยังไม่มีปีการศึกษา กรุณาแจ้งผู้บริหารตั้งค่าระบบก่อน', 'error');
+    }
+    hideProgress();
+    return;
+  }
+
+  // 2. ให้ระบบรอโหลดรายชื่อนักเรียนและสถานะเช็คชื่อให้เสร็จ
+  // (ภายใน loadAttendance จะมีการโชว์ "กำลังโหลดข้อมูล..." และปิดอัตโนมัติเมื่อเสร็จ)
+  await loadAttendance(); 
 }
 
 function afterLogin() {
