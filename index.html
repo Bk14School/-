@@ -498,20 +498,21 @@ function openConfigModal() {
 
 async function saveConfig() {
   const val = document.getElementById('configYearInput').value.trim();
-  if (!val || !/^\d\/\d{4}$/.test(val)) {
-    showToast('รูปแบบไม่ถูกต้อง ตัวอย่าง: 1/2569', 'error'); return;
+  if (!val || !/^[12]\/\d{4}$/.test(val)) {
+    showToast('รูปแบบไม่ถูกต้อง ตัวอย่าง: 1/2569 หรือ 2/2569', 'error'); return;
   }
-  showProgress('กำลังบันทึก...');
+  bootstrap.Modal.getInstance(document.getElementById('configModal')).hide();
+  showProgress('กำลังสร้างไฟล์เทอม ' + val + ' ...');
   try {
+    // 1. สร้างไฟล์เทอมก่อน (1 request เดียว ป้องกันสร้างซ้ำ)
+    await api('setupTerm', { term: val });
+    // 2. บันทึก Config
     await api('updateConfig', { active_year: val });
-    bootstrap.Modal.getInstance(document.getElementById('configModal')).hide();
     currentYear = val;
-    // อัปเดตแสดงผลทุกจุด
     document.getElementById('checkClassDisplay').textContent =
       `ชั้น ${currentUser.isAdmin ? 'ทุกชั้น' : currentUser.classroom} • ปีการศึกษา ${currentYear}`;
-    document.getElementById('rptClassroom') && loadReport();
     showToast('✅ เปลี่ยนปีการศึกษาเป็น ' + val + ' สำเร็จ', 'success');
-    // โหลดข้อมูลใหม่ด้วยปีใหม่
+    // 3. โหลดข้อมูลใหม่
     await loadAttendance();
   } catch(e) {
     showToast(e.message, 'error');
