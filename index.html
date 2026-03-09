@@ -469,14 +469,20 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
       <div class="d-flex gap-2 flex-wrap">
   <button class="nav-btn" onclick="openAddStudent()">➕ เพิ่มนักเรียน</button>
   <button class="nav-btn" onclick="loadAttendance()">🔄 โหลดใหม่</button>
-  <button class="nav-btn" onclick="printDailyAttendanceProfessional()"
+<button class="nav-btn" onclick="printDailyAttendanceProfessional()"
           style="background:linear-gradient(135deg,#0ea5e9,#0284c7);color:#fff;border-color:#0284c7;font-weight:700;">
     🖨️ พิมพ์รายงานประจำวัน
   </button>
-        <button class="nav-btn" onclick="openPrintHomeroomModal()"
-        style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-color:#d97706;font-weight:700;">
-  🗣️ พิมพ์รายงานโฮมรูม
-</button>
+  
+  <button class="nav-btn" onclick="openHomeroomModal()"
+          style="background:linear-gradient(135deg,#fef3c7,#fde68a);color:#92400e;border-color:#fcd34d;font-weight:700;">
+    📝 บันทึก/แก้ไข โฮมรูม
+  </button>
+  
+  <button class="nav-btn" onclick="openPrintHomeroomModal()"
+          style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border-color:#d97706;font-weight:700;">
+    🗣️ พิมพ์รายงานโฮมรูม
+  </button>
 </div>
       </div>
 
@@ -3360,10 +3366,37 @@ function printWarningLetter(studentId) {
 // ==============================================
 
 // 1. เปิดหน้าต่างบันทึก
-function openHomeroomModal() {
+// 1. เปิดหน้าต่างบันทึก (แก้ไขให้ดึงข้อมูลเดิมมาแสดงเพื่อการ Edit)
+async function openHomeroomModal() {
   document.getElementById('hrInfoLabel').textContent = `วันที่: ${currentDate} | ชั้นเรียน: ${currentUser.classroom}`;
+  
+  // ล้างค่าฟอร์มเป็นค่าเริ่มต้นก่อน
   document.querySelectorAll('.hr-topic').forEach(chk => chk.checked = false);
   document.getElementById('hrNote').value = '';
+
+  showProgress('กำลังตรวจสอบข้อมูลโฮมรูมเดิม...');
+  try {
+    // โหลดประวัติโฮมรูมของเทอมนี้/ห้องนี้
+    const logs = await api('getHomeroomLogs', { year: currentYear, classroom: currentUser.classroom });
+    // ค้นหาว่าของ "วันนี้" มีบันทึกไว้หรือยัง
+    const todayLog = logs.find(l => l.date === currentDate);
+    
+    if (todayLog) {
+      // ถ้าเคยบันทึกแล้ว ให้ติ๊ก Checkbox ตามข้อมูลเดิม
+      const savedTopics = todayLog.topics.split(',').map(t => t.trim());
+      document.querySelectorAll('.hr-topic').forEach(chk => {
+        if (savedTopics.includes(chk.value)) {
+          chk.checked = true;
+        }
+      });
+      // นำหมายเหตุเดิมมาใส่กลับเข้าไป
+      document.getElementById('hrNote').value = todayLog.note || '';
+    }
+  } catch(e) {
+    console.error('ไม่สามารถโหลดข้อมูลโฮมรูมเดิมได้:', e);
+  }
+  hideProgress();
+
   new bootstrap.Modal(document.getElementById('homeroomModal')).show();
 }
 
