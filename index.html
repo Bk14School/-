@@ -3433,6 +3433,8 @@ function openPrintHomeroomModal() {
   const currentMonth = currentDate.split('/')[1]; 
   document.getElementById('hrMonthPicker').value = currentMonth;
   document.getElementById('lblPrintHrDate').textContent = currentDate;
+    updateMonthDropdown(); // เพิ่มบรรทัดนี้ตอนเปิดหน้าต่าง
+
   new bootstrap.Modal(document.getElementById('printHomeroomModal')).show();
 }
 
@@ -3514,13 +3516,16 @@ async function printMonthlyHomeroomReport(month) {
     if(reportData.dates.length === 0) { showToast('เดือนนี้ยังไม่มีการเช็คชื่อ', 'error'); hideProgress(); return; }
 
     // เรียงวันที่จากน้อยไปมาก
-    const sortedDates = reportData.dates.sort((a, b) => {
-        const da = a.split('/').map(Number);
-        const db = b.split('/').map(Number);
-        const dateA = da[2] * 10000 + da[1] * 100 + da[0];
-        const dateB = db[2] * 10000 + db[1] * 100 + db[0];
-        return dateA - dateB;
-    });
+ const sortedDates = reportData.dates.sort((a, b) => {
+    const da = a.split('/').map(Number); // [วัน, เดือน, ปี]
+    const db = b.split('/').map(Number);
+    
+  
+    const valA = da[2] * 10000 + da[1] * 100 + da[0];
+    const valB = db[2] * 10000 + db[1] * 100 + db[0];
+    
+    return valA - valB;
+});
 
     const displayYear = sortedDates[0].split('/')[2];
 
@@ -3570,7 +3575,18 @@ async function printMonthlyHomeroomReport(month) {
   } catch(e) { showToast(e.message, 'error'); }
   hideProgress();
 }
+  async function updateMonthDropdown() {
+  const picker = document.getElementById('hrMonthPicker');
+  picker.innerHTML = '<option value="">กำลังโหลดเดือน...</option>';
   
+  // เรียกฟังก์ชันจาก Backend เพื่อขอลิสต์เดือน
+  const months = await api('getMonthsForTerm', { term: currentYear });
+  const THAI_M =['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+  
+  picker.innerHTML = months.map(m => {
+    return `<option value="${m}">${THAI_M[parseInt(m)]}</option>`;
+  }).join('');
+}
 </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -3635,14 +3651,9 @@ async function printMonthlyHomeroomReport(month) {
           </button>
           
           <div class="d-flex gap-2 align-items-stretch mt-3">
-            <select id="hrMonthPicker" class="form-select fw-bold" style="border-color:#f59e0b;">
-              <option value="01">มกราคม</option> <option value="02">กุมภาพันธ์</option>
-              <option value="03">มีนาคม</option>   <option value="04">เมษายน</option>
-              <option value="05">พฤษภาคม</option>   <option value="06">มิถุนายน</option>
-              <option value="07">กรกฎาคม</option>   <option value="08">สิงหาคม</option>
-              <option value="09">กันยายน</option>   <option value="10">ตุลาคม</option>
-              <option value="11">พฤศจิกายน</option> <option value="12">ธันวาคม</option>
-            </select>
+     <select id="hrMonthPicker" class="form-select fw-bold" style="border-color:#f59e0b;">
+    <!-- เดี๋ยวจะใช้ JS ใส่ข้อมูลให้ -->
+</select>
             <button class="btn btn-warning flex-grow-1 fw-bold text-dark" onclick="printHomeroomChoice('monthly')">
               📊 พิมพ์สรุปทั้งเดือน
             </button>
