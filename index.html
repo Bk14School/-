@@ -348,6 +348,50 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
   background: linear-gradient(to right, rgba(0,0,0,0.06), transparent);
   pointer-events: none;
 }
+  /* ===== ปรับปรุง Navbar สำหรับมือถือ (Mobile Header Fix) ===== */
+
+/* 1. ห้ามข้อความในปุ่มและป้ายชื่อตกบรรทัดเด็ดขาด และห้ามโดนบีบ */
+.nav-btn, .teacher-badge {
+  white-space: nowrap;
+  flex-shrink: 0; 
+}
+
+/* 2. จัดระเบียบโครงสร้างเมื่ออยู่บนหน้าจอมือถือ */
+@media (max-width: 640px) {
+  .app-nav {
+    padding: 10px 0 6px 0;
+  }
+  .app-nav .container {
+    flex-wrap: wrap; /* อนุญาตให้กลุ่มปุ่มตกลงมาอยู่บรรทัดที่ 2 */
+    gap: 8px;
+  }
+  .brand {
+    width: 100%; /* ให้โลโก้จองพื้นที่บรรทัดบนสุด */
+  }
+  
+  /* สร้างเมนูแบบปัดเลื่อนแนวนอน (Swipeable Menu) */
+  .nav-info {
+    width: 100%;
+    overflow-x: auto; /* เปิดให้ใช้นิ้วปัดซ้ายขวาได้ */
+    justify-content: flex-start;
+    padding-bottom: 6px; /* เผื่อพื้นที่นิดหน่อยไม่ให้ดูอึดอัด */
+    -webkit-overflow-scrolling: touch; /* เลื่อนลื่นๆ บนมือถือ */
+  }
+  
+  /* ซ่อนแถบ Scrollbar แนวนอนให้ดูสะอาดตาเหมือนแอปจริง */
+  .nav-info::-webkit-scrollbar {
+    display: none; 
+  }
+  
+  /* ปรับขนาดปุ่มให้กะทัดรัดขึ้นนิดหน่อยบนมือถือ */
+  .nav-btn {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+  .teacher-badge {
+    padding: 5px 12px;
+  }
+}
 </style>
 </head>
 <body>
