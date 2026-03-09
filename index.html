@@ -272,6 +272,27 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
   .quick-btn { text-align: center; }
   .date-bar { padding: 12px 16px; }
 }
+  /* ===== Calendar Filters ===== */
+.cal-filter-lbl { 
+  display: inline-flex; align-items: center; gap: 6px; cursor: pointer; 
+  font-size: .8rem; font-weight: 500; padding: 4px 10px; border-radius: 20px; 
+  background: #f1f5f9; border: 1.5px solid transparent; transition: all 0.2s;
+  user-select: none;
+}
+.cal-filter-lbl input { display: none; }
+.cal-filter-lbl:has(input:checked) { background: #fff; border-color: #cbd5e1; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+.cal-filter-lbl:has(input[value="ม"]:checked) { border-color: #22c55e; }
+.cal-filter-lbl:has(input[value="ข"]:checked) { border-color: #ef4444; background: #fef2f2; }
+.cal-filter-lbl:has(input[value="ล"]:checked) { border-color: #f59e0b; }
+.cal-filter-lbl:has(input[value="ส"]:checked) { border-color: #818cf8; }
+.cal-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+
+/* ===== Timeline Print Button ===== */
+.btn-print-warn {
+  font-size: .75rem; background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5;
+  padding: 2px 8px; border-radius: 12px; cursor: pointer; transition: all 0.2s;
+}
+.btn-print-warn:hover { background: #fca5a5; color: #fff; }
 </style>
 </head>
 <body>
@@ -473,15 +494,30 @@ body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--te
         </div>
       </div>
 
-      <!-- Legend + Search toggle -->
+      <!-- Legend + Search toggle + Filters -->
       <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-        <div class="d-flex gap-3 flex-wrap" style="font-size:.8rem;">
-          <span><span class="cal-dot" style="background:#22c55e;"></span> มาเรียน</span>
-          <span><span class="cal-dot" style="background:#ef4444;"></span> ขาด</span>
-          <span><span class="cal-dot" style="background:#f59e0b;"></span> ลา</span>
-          <span><span class="cal-dot" style="background:#818cf8;"></span> สาย</span>
-          <span><span class="cal-dot" style="background:#e2e8f0;"></span> ยังไม่เช็ค</span>
+        
+        <!-- Filter Checkboxes -->
+        <div class="d-flex gap-2 flex-wrap" id="calFilters">
+          <span style="font-size:0.8rem; color:#64748b; align-self:center; margin-right:4px;">ฟิลเตอร์จุดสี:</span>
+          <label class="cal-filter-lbl">
+            <input type="checkbox" value="ม" checked onchange="toggleCalFilter()">
+            <span class="cal-dot" style="background:#22c55e;"></span> มาเรียน
+          </label>
+          <label class="cal-filter-lbl">
+            <input type="checkbox" value="ข" checked onchange="toggleCalFilter()">
+            <span class="cal-dot" style="background:#ef4444;"></span> ขาด
+          </label>
+          <label class="cal-filter-lbl">
+            <input type="checkbox" value="ล" checked onchange="toggleCalFilter()">
+            <span class="cal-dot" style="background:#f59e0b;"></span> ลา
+          </label>
+          <label class="cal-filter-lbl">
+            <input type="checkbox" value="ส" checked onchange="toggleCalFilter()">
+            <span class="cal-dot" style="background:#818cf8;"></span> สาย
+          </label>
         </div>
+
         <div class="d-flex gap-2">
           <button class="nav-btn" onclick="toggleStudentPanel()" id="btnStudentPanel" style="font-size:.82rem;padding:5px 12px;">🔍 ดูรายคน</button>
           <button class="nav-btn" onclick="printCalMonth()" style="font-size:.82rem;padding:5px 12px;">🖨️ รายเดือน</button>
@@ -1599,34 +1635,45 @@ function renderStudentTimeline() {
     let p=0,a=0,total=0;
     let maxStreak=0, curStreak=0;
 
-    const dots = schoolDates.map(ds => {
+   const dots = schoolDates.map(ds => {
       const hol = calHolidays[ds];
       if (hol?.type==='holiday') return `<div class="cal-stu-day-dot" style="background:#e2e8f0;color:#94a3b8;" title="${ds}">-</div>`;
       const v = (calDayData[ds]||{})[s.studentId]||'';
       if(v==='ม'){p++;total++;}
       else if(v==='ข'){a++;total++;curStreak++;maxStreak=Math.max(maxStreak,curStreak);}
-      else if(v){total();curStreak=0;}
+      else if(v){total++;curStreak=0;}
       else curStreak=0;
+      
       const bg  = bgMap[v]||'#f8fafc';
       const clr = colorsMap[v]||'#9ca3af';
       const ring = streakMap[ds]&&v==='ข'?' outline:2px solid #ef4444;':' ';
-      return `<div class="cal-stu-day-dot" style="background:${bg};color:${clr};${ring}" title="${ds}: ${v||'ยังไม่เช็ค'}" onclick="openCalDay('${ds}')">${v||'?'}</div>`;
+      
+      // ทำให้จุดจางลงถ้าโดน Filter เอาออก
+      const opacity = (v && !currentFilters[v]) ? 'opacity: 0.2;' : 'opacity: 1;';
+
+      return `<div class="cal-stu-day-dot" style="background:${bg};color:${clr};${ring}${opacity}" title="${ds}: ${v||'ยังไม่เช็ค'}" onclick="openCalDay('${ds}')">${v||'?'}</div>`;
     }).join('');
 
     const pct  = total?Math.round(p/total*100):0;
     const pctColor = pct<80?'#dc2626':'#16a34a';
-    const streakBadge = maxStreak>=3 ? `<span style="font-size:.7rem;background:#fee2e2;color:#991b1b;border-radius:8px;padding:1px 6px;margin-left:6px;">⚠️ ขาด ${maxStreak} วันติด</span>` : '';
+    
+    // สร้างปุ่มแจ้งเตือน ถ้าขาด >= 3 วันติด หรือ % < 80
+    let warningAction = '';
+    if (maxStreak >= 3 || (total > 0 && pct < 80)) {
+      const reason = maxStreak >= 3 ? `ขาด ${maxStreak} วันติด` : `เวลาเรียน ${pct}%`;
+      warningAction = `<span style="font-size:.7rem;background:#fee2e2;color:#991b1b;border-radius:8px;padding:1px 6px;margin-left:6px;">⚠️ ${reason}</span>
+                       <button class="btn-print-warn ms-2" onclick="printWarningLetter('${s.studentId}')">🖨️ พิมพ์ใบเตือน</button>`;
+    }
 
     return `<div style="margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #f1f5f9;">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
         <span style="font-size:.88rem;font-weight:600;">${s.name}</span>
         <span style="font-size:.75rem;color:${pctColor};font-weight:700;">${pct}%</span>
         <span style="font-size:.75rem;color:#94a3b8;">มา ${p} / ขาด ${a}</span>
-        ${streakBadge}
+        ${warningAction}
       </div>
       <div class="cal-stu-timeline">${dots}</div>
     </div>`;
-  }).join('');
 
   // แสดง streak alert สรุป
   const streakStudents = filtered.filter(s => {
@@ -2115,8 +2162,19 @@ function calcWeekPct(weekDates) {
   if (!total) return null;
   return Math.round(present/total*100);
 }
+    // ประกาศตัวแปรเก็บสถานะ Filter
+let currentFilters = { 'ม': true, 'ข': true, 'ล': true, 'ส': true };
+
+// ฟังก์ชันเมื่อกดติ๊ก Checkbox
+function toggleCalFilter() {
+  const checkboxes = document.querySelectorAll('#calFilters input[type="checkbox"]');
+  checkboxes.forEach(chk => { currentFilters[chk.value] = chk.checked; });
+  renderCalendar(); // สั่งวาดปฏิทินใหม่
+}
 
 function renderCalendar() {
+
+
   const cls = document.getElementById('calClassroom').value;
   document.getElementById('calMonthLabel').textContent = `${THAI_MONTHS_CAL[calMonth]} ${calYear}`;
 
@@ -2162,12 +2220,12 @@ function renderCalendar() {
     const hasStreak= streakMap[dateStr];
 
     // dots
-    let dotsHtml='';
+  let dotsHtml='';
     if (hasData&&!isHoliday) {
-      if(cntM) dotsHtml+=`<div class="cal-dot-sm" style="background:#22c55e;"></div>`.repeat(Math.min(cntM,4));
-      if(cntK) dotsHtml+=`<div class="cal-dot-sm" style="background:#ef4444;"></div>`.repeat(Math.min(cntK,4));
-      if(cntL) dotsHtml+=`<div class="cal-dot-sm" style="background:#f59e0b;"></div>`.repeat(Math.min(cntL,4));
-      if(cntS) dotsHtml+=`<div class="cal-dot-sm" style="background:#818cf8;"></div>`.repeat(Math.min(cntS,4));
+      if(cntM && currentFilters['ม']) dotsHtml+=`<div class="cal-dot-sm" style="background:#22c55e;"></div>`.repeat(Math.min(cntM,4));
+      if(cntK && currentFilters['ข']) dotsHtml+=`<div class="cal-dot-sm" style="background:#ef4444;"></div>`.repeat(Math.min(cntK,4));
+      if(cntL && currentFilters['ล']) dotsHtml+=`<div class="cal-dot-sm" style="background:#f59e0b;"></div>`.repeat(Math.min(cntL,4));
+      if(cntS && currentFilters['ส']) dotsHtml+=`<div class="cal-dot-sm" style="background:#818cf8;"></div>`.repeat(Math.min(cntS,4));
     }
 
     // note badge
@@ -2375,6 +2433,131 @@ async function calSaveDay() {
     showToast('บันทึกไม่สำเร็จ: '+e.message, 'error');
   }
   hideProgress();
+}
+  // =============================================
+// Print Warning Letter (ใบแจ้งเตือน)
+// =============================================
+function printWarningLetter(studentId) {
+  const student = calStudents.find(s => s.studentId === studentId);
+  if (!student) return;
+
+  const school = document.getElementById('loginSchoolName')?.textContent || 'โรงเรียนบ้านคลอง 14';
+  const cls = document.getElementById('calClassroom').value;
+  const printDate = new Date().toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
+  const THAI_M =['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+
+  // หาวันที่ขาดทั้งหมด
+  const daysInMonth = new Date(calYear-543, calMonth, 0).getDate();
+  let absentDates =[];
+  let totalDays = 0;
+  let presentDays = 0;
+
+  for (let d=1; d<=daysInMonth; d++) {
+    const ds = pad(d)+'/'+pad(calMonth)+'/'+calYear;
+    if (calHolidays[ds]?.type === 'holiday') continue;
+    
+    const v = (calDayData[ds]||{})[studentId]||'';
+    if (v) totalDays++;
+    if (v === 'ม') presentDays++;
+    if (v === 'ข') absentDates.push(`${d} ${THAI_M[calMonth].substring(0,3)} ${calYear}`);
+  }
+
+  const pct = totalDays ? Math.round((presentDays/totalDays)*100) : 0;
+  
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+  <title>ใบแจ้งเตือน - ${student.name}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap');
+    @page { size: A4 portrait; margin: 25mm 20mm; }
+    * { box-sizing: border-box; }
+    body { font-family: 'Sarabun', sans-serif; font-size: 16px; color: #000; line-height: 1.5; }
+    
+    .doc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+    .doc-logo { width: 60px; height: 60px; background: #cbd5e1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; margin-right: 15px; }
+    .school-name { font-size: 22px; font-weight: 700; }
+    .doc-date { text-align: right; margin-top: 30px; }
+    
+    .doc-title { text-align: center; font-size: 20px; font-weight: 700; margin: 30px 0; }
+    .doc-row { margin-bottom: 10px; }
+    .doc-content { text-indent: 40px; margin-top: 20px; text-align: justify; }
+    
+    .absent-box { background: #fef2f2; border: 1px solid #fca5a5; padding: 15px; border-radius: 8px; margin: 20px 0; color: #991b1b; }
+    
+    .sign-area { display: flex; justify-content: space-between; margin-top: 60px; }
+    .sign-box { text-align: center; width: 45%; }
+    .sign-line { border-bottom: 1px dashed #000; width: 100%; margin: 40px auto 5px; }
+    
+    .cut-line { border-top: 1px dashed #94a3b8; margin: 40px 0; position: relative; }
+    .cut-line::after { content: "✂️ ตัดส่วนนี้ส่งคืนโรงเรียน"; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #fff; padding: 0 10px; font-size: 12px; color: #64748b; }
+    
+    .reply-form { background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 14px; }
+    @media print{ body{-webkit-print-color-adjust:exact;print-color-adjust:exact;} }
+  </style></head><body>
+
+  <div class="doc-header">
+    <div style="display: flex; align-items: center;">
+      <div class="doc-logo">โลโก้</div>
+      <div>
+        <div class="school-name">${school}</div>
+        <div style="font-size:14px;">สังกัดสำนักงานคณะกรรมการการศึกษาขั้นพื้นฐาน</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="doc-date">วันที่ ${printDate}</div>
+
+  <div class="doc-title">เรื่อง แจ้งเตือนการขาดเรียนเกินกำหนด</div>
+  <div class="doc-row"><b>เรียน</b> ผู้ปกครองของ ${student.name}</div>
+  <div class="doc-row"><b>อ้างถึง</b> ระเบียบกระทรวงศึกษาธิการ ว่าด้วยการลงโทษนักเรียนและนักศึกษา</div>
+
+  <div class="doc-content">
+    ด้วยทางโรงเรียนได้ตรวจสอบสถิติการมาเรียนประจำเดือน <b>${THAI_M[calMonth]} ${calYear}</b> พบว่า <b>${student.name}</b> นักเรียนชั้น <b>${cls}</b> มีประวัติการขาดเรียนจำนวนมาก ซึ่งอาจส่งผลกระทบต่อผลการเรียนและไม่ผ่านเกณฑ์การประเมินเวลาเรียน (ไม่น้อยกว่าร้อยละ 80)
+  </div>
+
+  <div class="absent-box">
+    <b>สถิติการมาเรียนเดือนนี้:</b> มาเรียน ${pct}% (ขาดไปแล้ว ${absentDates.length} วัน)<br>
+    <b>วันที่ขาดเรียน:</b> ${absentDates.join(', ')}
+  </div>
+
+  <div class="doc-content" style="margin-top:0;">
+    ดังนั้น ทางโรงเรียนจึงขอความร่วมมือจากท่านผู้ปกครองในการกวดขันและดูแลให้นักเรียนมาโรงเรียนอย่างสม่ำเสมอ หากมีเหตุจำเป็นที่ทำให้นักเรียนไม่สามารถมาเรียนได้ ขอความกรุณาแจ้งให้ครูประจำชั้นทราบทุกครั้ง พร้อมแนบใบรับรองแพทย์ (กรณีป่วย)
+  </div>
+  <div class="doc-content" style="margin-top:0;">
+    จึงเรียนมาเพื่อโปรดทราบ และขอขอบคุณในความร่วมมือมา ณ โอกาสนี้
+  </div>
+
+  <div class="sign-area">
+    <div class="sign-box">
+      <div class="sign-line"></div>
+      ( ${currentUser.name} )<br>ครูประจำชั้น
+    </div>
+    <div class="sign-box">
+      <div class="sign-line"></div>
+      ( ................................................. )<br>ผู้อำนวยการโรงเรียน
+    </div>
+  </div>
+
+  <div class="cut-line"></div>
+
+  <div class="reply-form">
+    <div style="text-align:center; font-weight:bold; margin-bottom:15px;">ใบตอบรับการรับทราบแจ้งเตือนการขาดเรียน</div>
+    ข้าพเจ้า .......................................................................... เป็นผู้ปกครองของ ${student.name} ชั้น ${cls}<br><br>
+    ได้รับทราบเรื่องการขาดเรียนของนักเรียนในความปกครองแล้ว และขอชี้แจงสาเหตุการขาดเรียน ดังนี้<br>
+    ............................................................................................................................................................................<br>
+    ............................................................................................................................................................................<br>
+    <div style="text-align:right; margin-top:30px;">
+      ลงชื่อ ........................................................ ผู้ปกครอง<br>
+      ( ........................................................ )<br>
+      วันที่ ......... / ......... / .........
+    </div>
+  </div>
+
+  <script>window.onload=()=>window.print();<\/script>
+  </body></html>`;
+
+  const w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
 }
 </script>
 </body>
