@@ -2699,6 +2699,26 @@ async function calSaveDay() {
   hideProgress();
 }
 
+  async function clearFullDay() {
+  if (!confirm("ต้องการล้างข้อมูลการเช็คชื่อของวันที่ " + calEditDate + " ทั้งหมดใช่หรือไม่?")) return;
+  
+  // 1. ล้างค่าในตัวแปร calEditAtt ให้เป็นค่าว่างทั้งหมด
+  calStudents.forEach(s => {
+    calEditAtt[s.studentId] = '';
+  });
+  
+  // 2. ล้างหมายเหตุ
+  document.getElementById('calDayNote').value = '';
+  
+  // 3. เรียกใช้ฟังก์ชันบันทึกเพื่อลบข้อมูลในชีต (ส่งสถานะว่างไป)
+  // หาก Backend ของคุณรับค่าว่างแล้วจะลบข้อมูลออก หรือเปลี่ยนเป็น '-'
+  await calSaveDay(); 
+  
+  // 4. รีเฟรชหน้าต่างแสดงผล
+  renderCalDayStudents();
+  showToast('ล้างข้อมูลของวันนี้เรียบร้อยแล้ว', 'success');
+}
+
   function openPrint(html) {
   const w = window.open('','_blank');
   if (!w) { 
