@@ -2665,11 +2665,16 @@ function calSetAll(status) {
 
 async function calSaveDay() {
   const cls = document.getElementById('calClassroom').value;
-  const records = calStudents
-    .filter(s => calEditAtt[s.studentId])
-    .map(s => ({ studentId: s.studentId, status: calEditAtt[s.studentId] }));
+  
+  // ⭐️ แก้ไขตรงนี้: อนุญาตให้บันทึกได้แม้จะไม่มีการเช็คชื่อ (คือส่งค่าว่างไปลบ)
+  // เราส่งรายการนักเรียนทั้งหมดไปพร้อมสถานะว่าง ('')
+  const records = calStudents.map(s => ({ 
+    studentId: s.studentId, 
+    status: calEditAtt[s.studentId] || '-' // ส่ง '-' เพื่อไปลบค่าเก่าทิ้ง
+  }));
 
-  if (!records.length) { showToast('ยังไม่ได้เช็คชื่อใคร','error'); return; }
+  // เอาส่วนเช็ค records.length ออก เพราะเราต้องการลบข้อมูลด้วย
+  // if (!records.length) { showToast('ยังไม่ได้เช็คชื่อใคร','error'); return; }
 
   showProgress('กำลังบันทึก...');
   try {
@@ -2679,9 +2684,13 @@ async function calSaveDay() {
       teacherName: currentUser.name
     });
 
+    // อัปเดตข้อมูลในเครื่อง
     calDayData[calEditDate] = {};
-    records.forEach(r => { calDayData[calEditDate][r.studentId] = r.status; });
+    records.forEach(r => { 
+      if (r.status !== '-') calDayData[calEditDate][r.studentId] = r.status; 
+    });
 
+    // จัดการหมายเหตุ
     const note = document.getElementById('calDayNote').value.trim();
     if (note) {
       calDayNotes[calEditDate] = note;
@@ -2698,7 +2707,6 @@ async function calSaveDay() {
   }
   hideProgress();
 }
-
   async function clearFullDay() {
   if (!confirm("ต้องการล้างข้อมูลการเช็คชื่อของวันที่ " + calEditDate + " ทั้งหมดใช่หรือไม่?")) return;
   
