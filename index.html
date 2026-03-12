@@ -1810,7 +1810,7 @@ function renderCalendar() {
   const todayStr   = pad(now.getDate())+'/'+pad(now.getMonth()+1)+'/'+(now.getFullYear()+543);
   const streakMap  = calcStreakMap();
   
-  // 🟢 เพิ่มการตรวจสอบว่า termDates มีค่าหรือไม่
+  // 🟢 ตรวจสอบเงื่อนไขเทอม
   const startD = termDates.start ? parseThaiDate(termDates.start) : null;
   const endD = termDates.end ? parseThaiDate(termDates.end) : null;
 
@@ -1831,37 +1831,63 @@ function renderCalendar() {
     const dayAtt   = calDayData[dateStr]||null;
     const hasData  = dayAtt && Object.keys(dayAtt).length>0;
 
-    // 🟢 ตรวจสอบเงื่อนไขช่วงเวลา (หากไม่มี startD/endD ให้ถือว่าเช็คได้)
+    // 🟢 เช็คว่าอยู่ในเทอมไหม (ถ้าไม่มีข้อมูลเทอม ให้เปิดได้ทุกวัน)
     const isWithinTerm = (!startD || !endD) || (dObj >= startD && dObj <= endD);
 
     weekDates.push(dateStr);
     cellsInRow++;
 
-    // ... (ส่วนคำนวณจุดสี cntM, cntK... เหมือนเดิมทุกอย่าง) ...
-    // [ใส่โค้ดคำนวณจุดสีเดิมของคุณไว้ตรงนี้]
+    let cntM=0,cntK=0,cntL=0,cntS=0,cntP=0,cntNone=0;
+    if (hasData) {
+      calStudents.forEach(s => {
+        const v=(dayAtt[s.studentId]||'');
+        if(v==='ม')cntM++;else if(v==='ข')cntK++;else if(v==='ล')cntL++;else if(v==='ส')cntS++;else if(v==='ป')cntP++;else cntNone++;
+      });
+    }
 
     const holInfo  = calHolidays[dateStr]||null;
     const isHoliday= holInfo?.type==='holiday';
     const isMakeup = holInfo?.type==='makeup';
     const hasStreak= streakMap[dateStr];
 
-    // ... (ส่วนสร้าง dotsHtml เหมือนเดิม) ...
-    // [ใส่โค้ดสร้าง dotsHtml ของคุณไว้ตรงนี้]
+    let dotsHtml='';
+    if (hasData&&!isHoliday) {
+      if(cntM && currentFilters['ม']) dotsHtml+=`<div class="cal-dot-sm" style="background:#22c55e;"></div>`.repeat(Math.min(cntM,4));
+      if(cntK && currentFilters['ข']) dotsHtml+=`<div class="cal-dot-sm" style="background:#ef4444;"></div>`.repeat(Math.min(cntK,4));
+      if(cntL && currentFilters['ล']) dotsHtml+=`<div class="cal-dot-sm" style="background:#f59e0b;"></div>`.repeat(Math.min(cntL,4));
+      if(cntP && currentFilters['ป']) dotsHtml+=`<div class="cal-dot-sm" style="background:#be185d;"></div>`.repeat(Math.min(cntP,4));
+      if(cntS && currentFilters['ส']) dotsHtml+=`<div class="cal-dot-sm" style="background:#818cf8;"></div>`.repeat(Math.min(cntS,4));
+    }
 
     const dayNote = calDayNotes[dateStr]||'';
     const noteBadge = dayNote ? `<div class="cal-note-badge" title="${dayNote}">📝 ${dayNote}</div>` : '';
 
-    // ... (ส่วนสร้าง cellContent เหมือนเดิม) ...
-    // [ใส่โค้ดสร้าง cellContent ของคุณไว้ตรงนี้]
+    let cellContent='';
+    if (isHoliday) {
+      cellContent=`<div class="cal-badge holiday">🚫 หยุด</div>${holInfo.note?`<div class="cal-summary">${holInfo.note}</div>`:''}`;
+    } else if (isMakeup) {
+      cellContent=`<div class="cal-badge makeup">📚 ชดเชย</div>${holInfo.note?`<div class="cal-summary">${holInfo.note}</div>`:''}`;
+      if(hasData) cellContent+=`<div class="cal-dots">${dotsHtml}</div>`;
+    } else if (hasData) {
+      const parts=[];
+      if(cntM) parts.push(`<span style="color:#16a34a;">ม${cntM}</span>`);
+      if(cntK) parts.push(`<span style="color:#dc2626;">ข${cntK}</span>`);
+      if(cntL) parts.push(`<span style="color:#d97706;">ล${cntL}</span>`);
+      if(cntP) parts.push(`<span style="color:#be185d;">ป${cntP}</span>`);
+      if(cntS) parts.push(`<span style="color:#6366f1;">ส${cntS}</span>`);
+      if(cntNone) parts.push(`<span style="color:#94a3b8;">?${cntNone}</span>`);
+      cellContent=`<div class="cal-dots">${dotsHtml}</div><div class="cal-summary">${parts.join(' ')}</div>`;
+    } else {
+      cellContent=`<div class="cal-no-data">ยังไม่เช็ค</div>`;
+    }
 
     const holBtn = `<button class="cal-holiday-btn" onclick="event.stopPropagation();openHolidayModal('${dateStr}')" title="วันหยุด/ชดเชย">⚙️</button>`;
     
-    // 🟢 ใช้อันนี้แทน canEdit เดิม
+    // 🟢 รวมเงื่อนไขเปิดใช้งานการแก้ไข
     const canEdit = !isHoliday && (!isWeekend || isMakeup) && isWithinTerm;
-    
     const clickable = canEdit 
         ? `onclick="openCalDay('${dateStr}')"` 
-        : `onclick="showToast('วันที่นี้ไม่อยู่ในระยะเวลาเทอม หรือเป็นวันหยุด', 'error')"`;
+        : `onclick="showToast('วันที่นี้ไม่อยู่ในเทอม หรือเป็นวันหยุด', 'error')"`;
 
     const cellClass =['cal-cell',
       isToday ? 'today' : '',
@@ -1896,12 +1922,9 @@ function renderCalendar() {
 
   document.getElementById('calGrid').innerHTML = html;
   renderStudentTimeline();
-    updateCalDaysSummary();
-    checkMissingAttendance(); 
-
-
+  updateCalDaysSummary();
+  checkMissingAttendance(); 
 }
-
 function openHolidayModal(dateStr) {
   calHolEditDate = dateStr;
   const p = dateStr.split('/');
